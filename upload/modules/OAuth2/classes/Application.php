@@ -63,8 +63,8 @@ class Application {
         return $this->data()->name;
     }
 
-    public function getOAuth2URL() {
-        return $this->data()->oauth2_url;
+    public function getWebsiteURL() {
+        return $this->data()->nameless_url;
     }
 
     public function getRedirectURI() {

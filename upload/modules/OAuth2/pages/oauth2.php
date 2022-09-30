@@ -9,7 +9,7 @@
 
 // Always define page name for navbar
 define('PAGE', 'oauth2');
-$page_title = 'oauth2';
+$page_title = $oauth2_language->get('general', 'oauth2');
 require_once(ROOT_PATH . '/core/templates/frontend_init.php');
 
 // Must be logged in
@@ -17,18 +17,28 @@ if(!$user->isLoggedIn()){
 	Redirect::to(URL::build('/login'));
 }
 
-if (!isset($_GET['code'])) {
-    if (!isset($_GET['client_id'])) {
-        require_once(ROOT_PATH . '/403.php');
-        die();
-    }
+if (!isset($_GET['client_id'])) {
+    require_once(ROOT_PATH . '/403.php');
+    die();
+}
 
-    $application = new Application($_GET['client_id'], 'client_id');
-    if (!$application->exists()) {
-        require_once(ROOT_PATH . '/403.php');
-        die();
-    }
+// Get application by client id
+$application = new Application($_GET['client_id'], 'client_id');
+if (!$application->exists()) {
+    require_once(ROOT_PATH . '/403.php');
+    die();
+}
+// Make sure redirect uri is set
+if (empty($application->getRedirectURI())) {
+    $errors[] = $oauth2_language->get('general', 'invalid_redirect_uri');
+}
 
+// Make sure redirect uri match
+if (!isset($_GET['redirect_uri']) || $application->getRedirectURI() != $_GET['redirect_uri']) {
+    $errors[] = $oauth2_language->get('general', 'invalid_redirect_uri');
+}
+
+if (!isset($errors)) {
     if (Input::exists()) {
         if (Token::check(Input::get('token'))) {
             // Generate a code
@@ -49,40 +59,37 @@ if (!isset($_GET['code'])) {
             $errors[] = $language->get('general', 'invalid_token');
         }
     }
+    
+    $access_to[] = $oauth2_language->get('general', 'your_username');
+    $access_to[] = $oauth2_language->get('general', 'your_email');
 
-    $smarty->assign(array(
-        'TOKEN' => Token::get()
-    ));
-
-} else {
-    $integration = Integrations::getInstance()->getIntegration('MC Server List');
-    if ($integration->validateIdentifier($_GET['c']) && $integration->validateUsername($_GET['username'])) {
-        // Success
-        $integrationUser = new IntegrationUser($integration);
-        $integrationUser->linkIntegration($user, $_GET['c'], $_GET['username'], true);
-
-        $integrationUser->verifyIntegration();
-
-        Session::flash('connections_success', $language->get('user', 'integration_linked', ['integration' => Output::getClean($integration->getName())]));
-        Redirect::to(URL::build('/user/connections'));
-    } else {
-        // Validation errors
-        Session::flash('connections_error', $integration->getErrors()[0]);
-        Redirect::to(URL::build('/user/connections'));
-    }
+    $smarty->assign([
+        'APPLICATION_NAME' => Output::getClean($application->getName()),
+        'APPLICATION_WANTS_ACCESS' => $oauth2_language->get('general', 'application_wants_access', [
+            'application' => $application->getName(),
+            'siteName' => SITE_NAME
+        ]),
+        'APPLICATION_WANTS_INFORMATION' => $oauth2_language->get('general', 'application_wants_information', [
+            'application' => $application->getName()
+        ]),
+        'AUTHORIZE' => $oauth2_language->get('general', 'authorize'),
+        'CANCEL' => $language->get('general', 'cancel'),
+        'TOKEN' => Token::get(),
+        'ACCESS_TO' => $access_to
+    ]);
 }
 
-if(isset($success))
-	$smarty->assign(array(
+if (isset($success))
+	$smarty->assign([
 		'SUCCESS' => $success,
 		'SUCCESS_TITLE' => $language->get('general', 'success')
-	));
+	]);
 
-if(isset($errors) && count($errors))
-	$smarty->assign(array(
+if (isset($errors) && count($errors))
+	$smarty->assign([
 		'ERRORS' => $errors,
 		'ERRORS_TITLE' => $language->get('general', 'error')
-	));
+	]);
 
 // Load modules + template
 Module::loadPage($user, $pages, $cache, $smarty, [$navigation, $cc_nav, $staffcp_nav], $widgets, $template);
@@ -93,4 +100,4 @@ require(ROOT_PATH . '/core/templates/navbar.php');
 require(ROOT_PATH . '/core/templates/footer.php');
 
 // Display template
-$template->displayTemplate('oauth2.tpl', $smarty);
+$template->displayTemplate('oauth2/oauth2.tpl', $smarty);

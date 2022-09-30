@@ -121,6 +121,9 @@ class ApplicationIntegration extends IntegrationBase {
                     $integrationUser = new IntegrationUser($this);
                     $integrationUser->linkIntegration($user, $id, $username, true);
                     $integrationUser->verifyIntegration();
+                    
+                    $this->linkIntegration($user, $id);
+                    $this->updateGroups($user, $id);
                 }
             }
 
@@ -129,6 +132,60 @@ class ApplicationIntegration extends IntegrationBase {
     }
 
     public function syncIntegrationUser(IntegrationUser $integration_user): bool {
-        return false;
+        $this->updateGroups($integration_user->getUser(), $integration_user->data()->identifier);
+
+        return true;
+    }
+    
+    private function updateGroups(User $user, $identifier) {
+        $groups = [];
+        foreach ($user->getAllGroupIds() as $group) {
+            $groups[] = $group;
+        }
+
+        $params = json_encode([
+            'user' => $identifier,
+            'groups' => $groups
+        ]);
+
+		$ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->_application->data()->api_url . '/oauth2/sync-integration');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			'Authorization: Bearer ' . $this->_application->data()->api_key,
+			'User-Agent: Partydragen, version 2.0.2, platform ' . php_uname('s') . '-' . php_uname( 'r' )
+        ]);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+
+        $ch_result = curl_exec($ch);
+
+        curl_close($ch);
+    }
+    
+    private function linkIntegration(User $user, $identifier) {
+        $groups = [];
+        foreach ($user->getAllGroupIds() as $group) {
+            $groups[] = $group;
+        }
+
+        $params = json_encode([
+            'integration' => 'Partydragen',
+            'identifier' => $user->data()->id,
+            'username' => $user->data()->username,
+            'verified' => true
+        ]);
+
+		$ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->_application->data()->api_url . '/users/' . $identifier . '/integrations/add');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			'Authorization: Bearer ' . $this->_application->data()->api_key,
+			'User-Agent: Partydragen, version 2.0.2, platform ' . php_uname('s') . '-' . php_uname( 'r' )
+        ]);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+
+        $ch_result = curl_exec($ch);
+
+        curl_close($ch);
     }
 }

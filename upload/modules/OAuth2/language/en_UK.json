@@ -1,3 +1,19 @@
 {
-    "general/oauth2":"OAuth2"
+    "general/oauth2":"OAuth2",
+    "general/applications":"Applications",
+    "general/new_application":"New Application",
+    "general/no_applications":"There are no applications yet.",
+    "general/creating_application": "Creating Application",
+    "general/application_created_successfully": "Application created successfully",
+    "general/application_updated_successfully": "Application updated successfully",
+    "general/redirect_uri": "Redirect URI",
+    "general/editing_application_x":"Editing application {{application}}",
+    "general/confirm_secret_regen":"Are you sure you want to regenerate your Client Secret key?",
+    "general/client_secret_key_regenerated":"The Client Secret key has been regenerated successfully.",
+    "general/application_wants_access":"An external application {{application}} wants to access your {{siteName}} account",
+    "general/application_wants_information":"{{application}} wants to access the following information:",
+    "general/authorize":"Authorize",
+    "general/your_username":"Your username",
+    "general/your_email":"your email address",
+    "general/invalid_redirect_uri":"Invalid OAuth2 redirect_uri"
 }

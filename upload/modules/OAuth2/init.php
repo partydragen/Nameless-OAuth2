@@ -1,6 +1,7 @@
 <?php
 /*
- *	Made by Partydragen
+ *  Made by Partydragen
+ *  https://github.com/partydragen/Nameless-OAuth2
  *  NamelessMC version 2.0.2
  *
  *  License: MIT

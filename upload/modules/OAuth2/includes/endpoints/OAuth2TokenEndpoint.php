@@ -10,12 +10,24 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
 
     public function execute(Nameless2API $api): void {
         $bodyReceived = file_get_contents('php://input');
-        
+
         parse_str($bodyReceived, $output);
-        
-        $token = DB::getInstance()->get('oauth2_tokens', ['code', $output['code']]);
+
+        // Get application by client id
+        $application = new Application($output['client_id'], 'client_id');
+        if (!$application->exists()) {
+            $api->throwError('oauth2:invalid_credentials');
+        }
+
+        // Validate client secret
+        if (!hash_equals($output['client_secret'], $application->data()->client_secret)) {
+            $api->throwError('oauth2:invalid_credentials');
+        }
+
+        // Get tokens by code
+        $token = DB::getInstance()->get('oauth2_tokens', [['application_id', $application->data()->id], ['code', $output['code']]]);
         if (!$token->count()) {
-            $api->throwError('error', $output);
+            $api->throwError('oauth2:invalid_code');
         }
         $token = $token->first();
 

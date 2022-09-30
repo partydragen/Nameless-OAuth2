@@ -8,7 +8,7 @@ class NamelessProvider extends AbstractProvider {
     protected Application $_application;
 
     public function __construct(array $options) {
-        $this->_application = new Application($options['clientId'], 'client_id');
+        $this->_application = new Application($options['clientId'], 'nameless_client_id');
         
         parent::__construct($options);
     }
@@ -21,7 +21,7 @@ class NamelessProvider extends AbstractProvider {
      * @return string
      */
     public function getBaseAuthorizationUrl() {
-        return $this->_application->getOAuth2URL() . 'oauth2/authorize/';
+        return $this->_application->getWebsiteURL() . '/oauth2/authorize/';
     }
 
     /**
@@ -32,7 +32,7 @@ class NamelessProvider extends AbstractProvider {
      * @return string
      */
     public function getBaseAccessTokenUrl(array $params) {
-        return $this->_application->data()->api_url . '/oauth2/token';
+        return $this->_application->getWebsiteURL() . '/api/v2/oauth2/token';
     }
 
     /**
@@ -43,7 +43,7 @@ class NamelessProvider extends AbstractProvider {
      * @return string
      */
     public function getResourceOwnerDetailsUrl(AccessToken $token) {
-        return $this->_application->data()->api_url . '/oauth2/user';
+        return $this->_application->getWebsiteURL() . '/api/v2/oauth2/user';
     }
 
     /**

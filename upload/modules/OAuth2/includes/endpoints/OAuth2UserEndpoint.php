@@ -22,7 +22,7 @@ class OAuth2UserEndpoint extends AccessTokenAuthEndpoint {
         // Make sure user still exist
         $user = new User($access_token->user_id);
         if (!$user->exists()) {
-            $api->throwError(Nameless2API::ERROR_CANNOT_FIND_USER );
+            $api->throwError(Nameless2API::ERROR_CANNOT_FIND_USER);
         }
 
         $api->returnArray([
