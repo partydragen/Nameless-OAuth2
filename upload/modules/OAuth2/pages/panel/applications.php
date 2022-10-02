@@ -125,6 +125,10 @@ if (!isset($_GET['action'])) {
                             $application->update([
                                 'name' => Input::get('name'),
                                 'redirect_uri' => Input::get('redirect_uri'),
+                                'nameless' => (isset($_POST['nameless_integration']) && $_POST['nameless_integration'] == 'on') ? '1' : '0',
+                                'nameless_url' => !empty(Input::get('nameless_url')) ? Input::get('nameless_url') : null,
+                                'nameless_client_id' => !empty(Input::get('nameless_client_id')) ? Input::get('nameless_client_id') : null,
+                                'nameless_api_key' => !empty(Input::get('nameless_api_key')) ? Input::get('nameless_api_key') : null,
                             ]);
 
                             Session::flash('staff_applications', $oauth2_language->get('general', 'application_updated_successfully'));
@@ -151,6 +155,10 @@ if (!isset($_GET['action'])) {
                 'REDIRECT_URI_VALUE' => Output::getClean($application->data()->redirect_uri),
                 'CLIENT_ID_VALUE' => Output::getClean($application->data()->client_id),
                 'CLIENT_SECRET_VALUE' => Output::getClean($application->data()->client_secret),
+                'NAMELESS_INTEGRATION_VALUE' => Output::getClean($application->data()->nameless),
+                'NAMELESS_URL_VALUE' => Output::getClean($application->data()->nameless_url),
+                'NAMELESS_CLIENT_ID_VALUE' => Output::getClean($application->data()->nameless_client_id),
+                'NAMELESS_API_KEY_VALUE' => Output::getClean($application->data()->nameless_api_key),
                 'CHANGE' => $language->get('general', 'change'),
                 'COPY' => $language->get('admin', 'copy'),
                 'COPIED' => $language->get('admin', 'copied'),

@@ -44,7 +44,6 @@
                             {include file='includes/alerts.tpl'}
 
                             <form role="form" action="" method="post">
-                            <div class="form-group">
                                 <div class="form-group">
                                     <label for="InputClientID">Client ID</label>
                                     <div class="input-group">
@@ -71,6 +70,32 @@
                                     <label for="InputUrl">{$REDIRECT_URI}</label>
                                     <input type="text" name="redirect_uri" class="form-control" id="InputRedirectURI" placeholder="{$REDIRECT_URI}" value="{$REDIRECT_URI_VALUE}">
                                 </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                                <h5 style="display:inline">Integrate another NamelessMC website</h5>
+                                <hr />
+                                <div class="form-group custom-control custom-switch">
+                                    <input id="inputNamelessIntegration" name="nameless_integration" type="checkbox" class="custom-control-input"{if $NAMELESS_INTEGRATION_VALUE eq 1} checked{/if} />
+                                    <label class="custom-control-label" for="inputNamelessIntegration">
+                                        Add integration & OAuth
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="InputNamelessURL">Website URL</label>
+                                    <input type="text" name="nameless_url" class="form-control" id="InputNamelessURL" placeholder="Website URL" value="{$NAMELESS_URL_VALUE}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="InputNamelessClientId">Client ID</label>
+                                    <input type="text" name="nameless_client_id" class="form-control" id="InputNamelessClientId" placeholder="Client ID" value="{$NAMELESS_CLIENT_ID_VALUE}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="InputNamelessAPIKey">API Key</label>
+                                    <input type="text" name="nameless_api_key" class="form-control" id="InputNamelessAPIKey" placeholder="API Key" value="{$NAMELESS_API_KEY_VALUE}">
+                                </div>
+                                    
                                 <div class="form-group">
                                     <input type="hidden" name="token" value="{$TOKEN}">
                                     <input type="submit" class="btn btn-primary" value="{$SUBMIT}">
