@@ -110,7 +110,7 @@ class OAuth2_Module extends Module {
     private function initialise() {
         if (!$this->_db->showTables('oauth2_applications')) {
             try {
-                $this->_db->createTable("oauth2_applications", " `id` int(11) NOT NULL AUTO_INCREMENT, `user_id` int(11) NOT NULL, `name` varchar(32) NOT NULL, `client_id` varchar(64) NOT NULL, `client_secret` varchar(64) NOT NULL, `redirect_uri` varchar(128) NOT NULL, `created` int(11) NOT NULL, `nameless` tinyint(1) NOT NULL DEFAULT '0', `nameless_url` varchar(128) NULL DEFAULT NULL, `nameless_client_id` varchar(64) NULL DEFAULT NULL, `nameless_api_key` varchar(64) NULL DEFAULT NULL, `enabled` tinyint(1) NOT NULL DEFAULT '1', PRIMARY KEY (`id`)");
+                $this->_db->createTable("oauth2_applications", " `id` int(11) NOT NULL AUTO_INCREMENT, `user_id` int(11) NOT NULL, `name` varchar(32) NOT NULL, `client_id` varchar(64) NOT NULL, `client_secret` varchar(64) NOT NULL, `redirect_uri` varchar(128) NOT NULL, `created` int(11) NOT NULL, `nameless` tinyint(1) NOT NULL DEFAULT '0', `nameless_url` varchar(128) NULL DEFAULT NULL, `nameless_client_id` varchar(64) NULL DEFAULT NULL, `nameless_api_key` varchar(64) NULL DEFAULT NULL, `group_sync` tinyint(1) NOT NULL DEFAULT '0', `enabled` tinyint(1) NOT NULL DEFAULT '1', PRIMARY KEY (`id`)");
             } catch (Exception $e) {
                 // Error
                 die($e);

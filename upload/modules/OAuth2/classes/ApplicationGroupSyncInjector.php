@@ -23,7 +23,7 @@ class ApplicationGroupSyncInjector implements GroupSyncInjector {
     }
 
     public function getColumnName(): string {
-        return strtolower($this->_application->getName() . '_tier_id');
+        return strtolower($this->_application->getName() . '_group_id');
     }
 
     public function getColumnType(): string {
@@ -41,30 +41,27 @@ class ApplicationGroupSyncInjector implements GroupSyncInjector {
     public function getSelectionOptions(): array {
         $groups = [];
 
-        $groups[] = [
-            'id' => 5,
-            'name' => 'Tier-1'
+        if ($this->_application->data()->nameless_url == null || $this->_application->data()->nameless_api_key == null) {
+            return $groups;
+        }
+
+        $header = [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->_application->data()->nameless_api_key
+            ]
         ];
-        $groups[] = [
-            'id' => 6,
-            'name' => 'Tier-2'
-        ];
-        $groups[] = [
-            'id' => 7,
-            'name' => 'Tier-3'
-        ];
-        $groups[] = [
-            'id' => 8,
-            'name' => 'Tier-4'
-        ];
-        $groups[] = [
-            'id' => 11,
-            'name' => 'Tier-5'
-        ];
-        $groups[] = [
-            'id' => 12,
-            'name' => 'Tier-6'
-        ];
+
+        $request = HttpClient::get($this->_application->getWebsiteURL() . '/index.php?route=/api/v2/groups', $header);
+        if (!$request->hasError()) {
+            $result = $request->json(true);
+
+            foreach ($result['groups'] as $group) {
+                $groups[] = [
+                    'id' => Output::getClean($group['id']),
+                    'name' => Output::getClean($group['name'])
+                ];
+            }
+        }
 
         return $groups;
     }
@@ -79,9 +76,9 @@ class ApplicationGroupSyncInjector implements GroupSyncInjector {
 
     public function getValidationMessages(Language $language): array {
         return [
-            Validate::MIN => 'Invalid patreon tier id',
-            Validate::MAX => 'Invalid patreon tier id',
-            Validate::NUMERIC => 'Invalid patreon tier id',
+            Validate::MIN => 'Invalid group id',
+            Validate::MAX => 'Invalid group id',
+            Validate::NUMERIC => 'Invalid group id',
         ];
     }
 
