@@ -74,6 +74,7 @@ if (!isset($errors)) {
         ]),
         'AUTHORIZE' => $oauth2_language->get('general', 'authorize'),
         'CANCEL' => $language->get('general', 'cancel'),
+        'CANCEL_LINK' => URL::build('/'),
         'TOKEN' => Token::get(),
         'ACCESS_TO' => $access_to
     ]);

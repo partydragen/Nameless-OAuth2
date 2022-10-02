@@ -44,7 +44,7 @@
                 <form class="ui form" action="" method="post" id="form-login">
                     <input type="hidden" name="token" value="{$TOKEN}">
                     <input type="submit" class="ui positive button" value="{$AUTHORIZE}">
-                    <a class="ui negative button" href="#">{$CANCEL}</a>
+                    <a class="ui negative button" href="{$CANCEL_LINK}">{$CANCEL}</a>
                 </form>
             </div>
         </div>
