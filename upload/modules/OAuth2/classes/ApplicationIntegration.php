@@ -43,6 +43,30 @@ class ApplicationIntegration extends IntegrationBase {
         $integrationUser->unlinkIntegration();
 
         Session::flash('connections_success', $this->_language->get('user', 'integration_unlinked', ['integration' => Output::getClean($this->_name)]));
+
+        // unlink integration on the other NamelessMC website
+        if (!$this->_application->data()->nameless || $this->_application->data()->nameless_url == null || $this->_application->data()->nameless_api_key == null) {
+            return;
+        }
+
+        $api_url = $this->_application->getWebsiteURL() . '/index.php?route=/api/v2';
+
+        $header = [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->_application->data()->nameless_api_key
+            ]
+        ];
+
+        $request = HttpClient::get($api_url . '/oauth2/application&client_id=' . $this->_application->data()->nameless_client_id, $header);
+        if (!$request->hasError()) {
+            $result = $request->json(true);
+            
+            if  ($result['nameless_integration']['enabled']) {
+                HttpClient::post($api_url . '/users/' . $integrationUser->data()->identifier . '/integrations/unlink', json_encode([
+                    'integration' => $result['name']
+                ]), $header);
+            }
+        }
     }
 
     public function onSuccessfulVerification(IntegrationUser $integrationUser) {
@@ -138,7 +162,7 @@ class ApplicationIntegration extends IntegrationBase {
     }
     
     private function updateGroups(User $user, $identifier) {
-        $groups = [];
+        /*$groups = [];
         foreach ($user->getAllGroupIds() as $group) {
             $groups[] = $group;
         }
@@ -159,33 +183,35 @@ class ApplicationIntegration extends IntegrationBase {
 
         $ch_result = curl_exec($ch);
 
-        curl_close($ch);
+        curl_close($ch);*/
     }
     
     private function linkIntegration(User $user, $identifier) {
-        $groups = [];
-        foreach ($user->getAllGroupIds() as $group) {
-            $groups[] = $group;
+        // Link integration on the other NamelessMC website
+        if (!$this->_application->data()->nameless || $this->_application->data()->nameless_url == null || $this->_application->data()->nameless_api_key == null) {
+            return;
         }
 
-        $params = json_encode([
-            'integration' => 'Partydragen',
-            'identifier' => $user->data()->id,
-            'username' => $user->data()->username,
-            'verified' => true
-        ]);
+        $api_url = $this->_application->getWebsiteURL() . '/index.php?route=/api/v2';
 
-		$ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->_application->data()->api_url . '/users/' . $identifier . '/integrations/add');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-			'Authorization: Bearer ' . $this->_application->data()->api_key,
-			'User-Agent: Partydragen, version 2.0.2, platform ' . php_uname('s') . '-' . php_uname( 'r' )
-        ]);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+        $header = [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->_application->data()->nameless_api_key
+            ]
+        ];
 
-        $ch_result = curl_exec($ch);
-
-        curl_close($ch);
+        $request = HttpClient::get($api_url . '/oauth2/application&client_id=' . $this->_application->data()->nameless_client_id, $header);
+        if (!$request->hasError()) {
+            $result = $request->json(true);
+            
+            if  ($result['nameless_integration']['enabled']) {
+                HttpClient::post($api_url . '/users/' . $identifier . '/integrations/link', json_encode([
+                    'integration' => $result['name'],
+                    'identifier' => $user->data()->id,
+                    'username' => $user->data()->username,
+                    'verified' => true
+                ]), $header);
+            }
+        }
     }
 }
