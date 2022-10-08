@@ -40,7 +40,7 @@ class OAuth2_Module extends Module {
                     'class' => NamelessProvider::class,
                     'user_id_name' => 'id',
                     'scope_id_name' => 'identify',
-                    'icon' => 'fab fa-browser',
+                    'icon' => 'fa-solid fa-globe',
                 ]);
 
                 // Register group sync for namelessmc application if enabled

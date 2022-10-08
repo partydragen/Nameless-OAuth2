@@ -14,7 +14,7 @@ class ApplicationIntegration extends IntegrationBase {
 
     public function __construct(Language $language, Application $application) {
         $this->_name = $application->getName();
-        $this->_icon = 'fas fa-browser';
+        $this->_icon = 'fa-solid fa-globe';
         $this->_language = $language;
         $this->_application = $application;
 
