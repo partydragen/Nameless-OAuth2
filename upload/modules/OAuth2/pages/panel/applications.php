@@ -115,6 +115,14 @@ if (!isset($_GET['action'])) {
                             Validate::REQUIRED => true,
                             Validate::MIN => 1,
                             Validate::MAX => 32
+                        ],
+                        'nameless_client_id' => [
+                            Validate::MIN => 32,
+                            Validate::MAX => 64
+                        ],
+                        'nameless_api_key' => [
+                            Validate::MIN => 32,
+                            Validate::MAX => 64
                         ]
                     ]);
 
@@ -126,7 +134,7 @@ if (!isset($_GET['action'])) {
                                 'name' => Input::get('name'),
                                 'redirect_uri' => Input::get('redirect_uri'),
                                 'nameless' => (isset($_POST['nameless_integration']) && $_POST['nameless_integration'] == 'on') ? '1' : '0',
-                                'nameless_url' => !empty(Input::get('nameless_url')) ? Input::get('nameless_url') : null,
+                                'nameless_url' => !empty(Input::get('nameless_url')) ? rtrim(Input::get('nameless_url'), '/') : null,
                                 'nameless_client_id' => !empty(Input::get('nameless_client_id')) ? Input::get('nameless_client_id') : null,
                                 'nameless_api_key' => !empty(Input::get('nameless_api_key')) ? Input::get('nameless_api_key') : null,
                             ]);

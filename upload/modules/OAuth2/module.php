@@ -13,14 +13,14 @@ class OAuth2_Module extends Module {
     private DB $_db;
     private $_patreon_language, $_language;
 
-    public function __construct(Language $language, Language $oauth2_language, Pages $pages, Endpoints $endpoints){
+    public function __construct(Language $language, Language $oauth2_language, Pages $pages, Cache $cache, Endpoints $endpoints){
         $this->_db = DB::getInstance();
         $this->_language = $language;
         $this->_oauth2_language = $oauth2_language;
 
         $name = 'OAuth2';
         $author = '<a href="https://partydragen.com/" target="_blank" rel="nofollow noopener">Partydragen</a>';
-        $module_version = '1.0.0';
+        $module_version = '1.0.1';
         $nameless_version = '2.0.2';
 
         parent::__construct($this, $name, $author, $module_version, $nameless_version);
@@ -28,6 +28,23 @@ class OAuth2_Module extends Module {
         // Define URLs which belong to this module
         $pages->add('OAuth2', '/oauth2/authorize', 'pages/oauth2.php');
         $pages->add('OAuth2', '/panel/applications', 'pages/panel/applications.php');
+
+        // Check if module version changed
+        $cache->setCache('oauth2_module_cache');
+        if (!$cache->isCached('module_version')) {
+            $cache->store('module_version', $module_version);
+        } else {
+            if ($module_version != $cache->retrieve('module_version')) {
+                // Version have changed, Perform actions
+                //$this->initialiseUpdate($cache->retrieve('module_version'));
+
+                $cache->store('module_version', $module_version);
+
+                if ($cache->isCached('update_check')) {
+                    $cache->erase('update_check');
+                }
+            }
+        }
 
         try {
             // Register integrations for namelessmc applications
@@ -101,6 +118,38 @@ class OAuth2_Module extends Module {
                 }
             }
         }
+
+        // Check for module updates
+        if (isset($_GET['route']) && $user->isLoggedIn() && $user->hasPermission('admincp.update')) {
+            // Page belong to this module?
+            $page = $pages->getActivePage();
+            if ($page['module'] == 'OAuth2') {
+
+                $cache->setCache('oauth2_module_cache');
+                if ($cache->isCached('update_check')) {
+                    $update_check = $cache->retrieve('update_check');
+                } else {
+                    $update_check = OAuth2_Module::updateCheck();
+                    $cache->store('update_check', $update_check, 3600);
+                }
+
+                $update_check = json_decode($update_check);
+                if (!isset($update_check->error) && !isset($update_check->no_update) && isset($update_check->new_version)) {  
+                    $smarty->assign(array(
+                        'NEW_UPDATE' => (isset($update_check->urgent) && $update_check->urgent == 'true') ? $this->_oauth2_language->get('general', 'new_urgent_update_available_x', ['module' => $this->getName()]) : $this->_oauth2_language->get('general', 'new_update_available_x', ['module' => $this->getName()]),
+                        'NEW_UPDATE_URGENT' => (isset($update_check->urgent) && $update_check->urgent == 'true'),
+                        'CURRENT_VERSION' => $this->_oauth2_language->get('general', 'current_version_x', [
+                            'version' => Output::getClean($this->getVersion())
+                        ]),
+                        'NEW_VERSION' => $this->_oauth2_language->get('general', 'new_version_x', [
+                            'new_version' => Output::getClean($update_check->new_version)
+                        ]),
+                        'NAMELESS_UPDATE' => $this->_oauth2_language->get('general', 'view_resource'),
+                        'NAMELESS_UPDATE_LINK' => Output::getClean($update_check->link)
+                    ));
+                }
+            }
+        }
     }
 
     public function getDebugInfo(): array {
@@ -125,5 +174,37 @@ class OAuth2_Module extends Module {
                 die($e);
             }
         }
+    }
+
+    /*
+     *  Check for Module updates
+     *  Returns JSON object with information about any updates
+     */
+    private static function updateCheck() {
+        $current_version = Util::getSetting('nameless_version');
+        $uid = Util::getSetting('unique_id');
+
+        $enabled_modules = Module::getModules();
+        foreach ($enabled_modules as $enabled_item) {
+            if ($enabled_item->getName() == 'OAuth2') {
+                $module = $enabled_item;
+                break;
+            }
+        }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_URL, 'https://api.partydragen.com/stats.php?uid=' . $uid . '&version=' . $current_version . '&module=OAuth2&module_version='.$module->getVersion() . '&domain='. Util::getSelfURL());
+
+        $update_check = curl_exec($ch);
+        curl_close($ch);
+
+        $info = json_decode($update_check);
+        if (isset($info->message)) {
+            die($info->message);
+        }
+
+        return $update_check;
     }
 }

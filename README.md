@@ -15,7 +15,7 @@ The OAuth2 module allow your site to be a OAuth provider with also allow for cro
 3. On site 2 go to StaffCP -> Configurations -> Registrations
 4. There you will now see your Application in OAuth section, Enter your Client ID and Client Secret from Site 1
 5. Copy the Redirect URI and enter that into the Application on site 1 in Redirect URI field
-6. On site 1 enter the Website URL to site 2 without / at the end example "https://partydragen.com"
+6. On site 1 enter the Website URL to site 2
 
 ## Patreon
 If you like to help out with the development and get early access to new updates and new modules check out [https://partydragen.com/patreon/](https://partydragen.com/patreon/)

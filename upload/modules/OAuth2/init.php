@@ -28,4 +28,4 @@ spl_autoload_register(function ($class) {
 });
 
 require_once(ROOT_PATH . '/modules/OAuth2/module.php');
-$module = new OAuth2_Module($language, $oauth2_language, $pages, $endpoints);
+$module = new OAuth2_Module($language, $oauth2_language, $pages, $cache, $endpoints);
