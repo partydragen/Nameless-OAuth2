@@ -6,7 +6,7 @@
     "general/creating_application": "Anwendung erstellen",
     "general/application_created_successfully": "Anwendung erfolgreich erstellt",
     "general/application_updated_successfully": "Anwendung erfolgreich aktualisiert",
-    "general/redirect_uri": "Redirect URI",
+    "general/redirect_uri": "Umleitungs-URL",
     "general/editing_application_x": "Bearbeitung der Anwendung {{application}}",
     "general/confirm_secret_regen": "Bist du sicher, dass du deinen geheimen Client-Schlüssel neu generieren willst?",
     "general/client_secret_key_regenerated": "Der Client Secret Key wurde erfolgreich neu generiert.",
