@@ -1,0 +1,23 @@
+{
+    "general/oauth2": "OAuth2",
+    "general/applications": "Anwendungen",
+    "general/new_application": "Neue Anwendung",
+    "general/no_applications": "Es existieren noch keine Anwendungen.",
+    "general/creating_application": "Anwendung erstellen",
+    "general/application_created_successfully": "Anwendung erfolgreich erstellt",
+    "general/application_updated_successfully": "Anwendung erfolgreich aktualisiert",
+    "general/redirect_uri": "Umleitungs-URL",
+    "general/editing_application_x": "Bearbeitung der Anwendung {{application}}",
+    "general/confirm_secret_regen": "Bist du sicher, dass du deinen geheimen Client-Schlüssel neu generieren willst?",
+    "general/client_secret_key_regenerated": "Der Client Secret Key wurde erfolgreich neu generiert.",
+    "general/application_wants_access": "Eine externe Anwendung {{application}} möchte auf dein {{siteName}} Konto zugreifen",
+    "general/application_wants_information": "{{application}} möchte auf die folgenden Informationen zugreifen:",
+    "general/authorize": "Autorisiere",
+    "general/your_username": "Dein Nutzername",
+    "general/your_email": "Deine E-Mail Adresse",
+    "general/invalid_redirect_uri": "Ungültige OAuth2 redirect_uri",
+    "general/new_update_available_x": "Es existiert ein neues Update für das Modul {{module}}",
+    "general/new_urgent_update_available_x": "Es existiert ein neues dringendes Update für das Modul {{modul}}. Bitte aktualisiere so schnell wie möglich!",
+    "general/current_version_x": "Aktuelle Modulversion: {{version}}",
+    "general/new_version_x": "Neue Modulversion: {{new_version}}"
+}
