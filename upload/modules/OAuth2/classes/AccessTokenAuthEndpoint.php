@@ -44,7 +44,7 @@ class AccessTokenAuthEndpoint extends EndpointBase {
     private function validateAccessToken(Nameless2API $api, string $access_token): bool {
         $token = DB::getInstance()->get('oauth2_tokens', ['access_token', $access_token]);
         if (!$token->count()) {
-            false;
+            return false;
         }
         $token = $token->first();
 
