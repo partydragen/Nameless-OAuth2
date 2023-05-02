@@ -11,7 +11,7 @@
 
 class OAuth2_Module extends Module {
     private DB $_db;
-    private $_patreon_language, $_language;
+    private $_oauth2_language, $_language;
 
     public function __construct(Language $language, Language $oauth2_language, Pages $pages, Cache $cache, Endpoints $endpoints){
         $this->_db = DB::getInstance();
@@ -20,8 +20,8 @@ class OAuth2_Module extends Module {
 
         $name = 'OAuth2';
         $author = '<a href="https://partydragen.com/" target="_blank" rel="nofollow noopener">Partydragen</a>';
-        $module_version = '1.0.1';
-        $nameless_version = '2.0.2';
+        $module_version = '1.0.2';
+        $nameless_version = '2.1.0';
 
         parent::__construct($this, $name, $author, $module_version, $nameless_version);
 
@@ -195,7 +195,7 @@ class OAuth2_Module extends Module {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_URL, 'https://api.partydragen.com/stats.php?uid=' . $uid . '&version=' . $current_version . '&module=OAuth2&module_version='.$module->getVersion() . '&domain='. Util::getSelfURL());
+        curl_setopt($ch, CURLOPT_URL, 'https://api.partydragen.com/stats.php?uid=' . $uid . '&version=' . $current_version . '&module=OAuth2&module_version='.$module->getVersion() . '&domain='. URL::getSelfURL());
 
         $update_check = curl_exec($ch);
         curl_close($ch);

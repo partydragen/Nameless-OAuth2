@@ -28,6 +28,7 @@ if (!$application->exists()) {
     require_once(ROOT_PATH . '/403.php');
     die();
 }
+
 // Make sure redirect uri is set
 if (empty($application->getRedirectURI())) {
     $errors[] = $oauth2_language->get('general', 'invalid_redirect_uri');
