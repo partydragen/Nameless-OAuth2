@@ -162,28 +162,21 @@ class ApplicationIntegration extends IntegrationBase {
     }
     
     private function updateGroups(User $user, $identifier) {
-        /*$groups = [];
+        $groups = [];
         foreach ($user->getAllGroupIds() as $group) {
             $groups[] = $group;
         }
 
-        $params = json_encode([
+        HttpClient::post($this->_application->getWebsiteURL() . '/index.php?route=/api/v2/oauth2/sync-integration', json_encode([
             'user' => $identifier,
             'groups' => $groups
+        ]),
+        [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->_application->data()->nameless_api_key
+            ]
         ]);
-
-		$ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->_application->data()->api_url . '/oauth2/sync-integration');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-			'Authorization: Bearer ' . $this->_application->data()->api_key,
-			'User-Agent: Partydragen, version 2.0.2, platform ' . php_uname('s') . '-' . php_uname( 'r' )
-        ]);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-
-        $ch_result = curl_exec($ch);
-
-        curl_close($ch);*/
+        
     }
     
     private function linkIntegration(User $user, $identifier) {
