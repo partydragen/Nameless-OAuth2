@@ -21,7 +21,7 @@ class OAuth2_Module extends Module {
         $name = 'OAuth2';
         $author = '<a href="https://partydragen.com/" target="_blank" rel="nofollow noopener">Partydragen</a>';
         $module_version = '1.0.2';
-        $nameless_version = '2.1.0';
+        $nameless_version = '2.1.1';
 
         parent::__construct($this, $name, $author, $module_version, $nameless_version);
 
@@ -58,6 +58,7 @@ class OAuth2_Module extends Module {
                     'user_id_name' => 'id',
                     'scope_id_name' => 'identify',
                     'icon' => 'fa-solid fa-globe',
+                    'verify_email' => static fn () => true,
                 ]);
 
                 // Register group sync for namelessmc application if enabled
