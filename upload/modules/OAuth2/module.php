@@ -20,7 +20,7 @@ class OAuth2_Module extends Module {
 
         $name = 'OAuth2';
         $author = '<a href="https://partydragen.com/" target="_blank" rel="nofollow noopener">Partydragen</a>';
-        $module_version = '1.0.2';
+        $module_version = '1.0.3';
         $nameless_version = '2.1.1';
 
         parent::__construct($this, $name, $author, $module_version, $nameless_version);
