@@ -24,13 +24,15 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
             $api->throwError('oauth2:invalid_credentials');
         }
 
-        // Get tokens by code
-        $token = DB::getInstance()->get('oauth2_tokens', [['application_id', $application->data()->id], ['code', $output['code']]]);
-        if (!$token->count()) {
+        // Get token by code
+        $token = new AccessToken($output['code'], 'code');
+        if ($token->exists()) {
             $api->throwError('oauth2:invalid_code');
         }
-        $token = $token->first();
 
-        $api->returnArray(['access_token' => $token->access_token, 'refresh_token' => $token->refresh_token]);
+        $api->returnArray([
+            'access_token' => $token->data()->access_token,
+            'refresh_token' => $token->data()->refresh_token
+        ]);
     }
 }
