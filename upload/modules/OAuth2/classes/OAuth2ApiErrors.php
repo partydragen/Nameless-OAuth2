@@ -10,4 +10,6 @@
  */
 class OAuth2ApiErrors {
     public const ERROR_NOT_AUTHORIZED = 'oauth2:not_authorized';
+    public const ERROR_MISSING_SCOPE = 'oauth2:missing_scope';
+    public const ERROR_CANNOT_FIND_APPLICATION = 'oauth2:cannot_find_application';
 }

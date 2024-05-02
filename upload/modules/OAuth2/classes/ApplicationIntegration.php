@@ -147,7 +147,7 @@ class ApplicationIntegration extends IntegrationBase {
                     $integrationUser->verifyIntegration();
                     
                     $this->linkIntegration($user, $id);
-                    $this->updateGroups($user, $id);
+                    $this->syncExternalUserIntegration($user);
                 }
             }
 
@@ -156,29 +156,11 @@ class ApplicationIntegration extends IntegrationBase {
     }
 
     public function syncIntegrationUser(IntegrationUser $integration_user): bool {
-        $this->updateGroups($integration_user->getUser(), $integration_user->data()->identifier);
+        $this->syncExternalUserIntegration($integration_user->getUser());
 
-        return true;
+        return false;
     }
-    
-    private function updateGroups(User $user, $identifier) {
-        $groups = [];
-        foreach ($user->getAllGroupIds() as $group) {
-            $groups[] = $group;
-        }
 
-        HttpClient::post($this->_application->getWebsiteURL() . '/index.php?route=/api/v2/oauth2/sync-integration', json_encode([
-            'user' => $identifier,
-            'groups' => $groups
-        ]),
-        [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->_application->data()->nameless_api_key
-            ]
-        ]);
-        
-    }
-    
     private function linkIntegration(User $user, $identifier) {
         // Link integration on the other NamelessMC website
         if (!$this->_application->data()->nameless || $this->_application->data()->nameless_url == null || $this->_application->data()->nameless_api_key == null) {
@@ -206,5 +188,42 @@ class ApplicationIntegration extends IntegrationBase {
                 ]), $header);
             }
         }
+    }
+
+    public function syncExternalUserIntegration(User $user) {
+        if (!$this->_application->data()->nameless || $this->_application->data()->nameless_url == null || $this->_application->data()->nameless_api_key == null) {
+            return;
+        }
+
+        $groups_list = [];
+        foreach ($user->getAllGroupIds() as $group) {
+            $groups_list[] = $group;
+        }
+
+        $post = [
+            'application' => [
+                'client_id' => $this->_application->data()->client_id,
+                'name' => $this->_application->data()->name,
+            ],
+            'user' => [
+                'id' => $user->data()->id,
+                'username' => $user->data()->username,
+                'email' => $user->data()->email,
+                'groups' => $groups_list
+            ],
+            'external_application' => [
+                'client_id' => $this->_application->data()->nameless_client_id,
+            ],
+        ];
+
+        HttpClient::post($this->_application->getWebsiteURL() . '/index.php?route=/api/v2/oauth2/user/sync-integration', json_encode(
+            $post
+            ),
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->_application->data()->nameless_api_key
+                ]
+            ]
+        );
     }
 }

@@ -26,7 +26,7 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
 
         // Get token by code
         $token = new AccessToken($output['code'], 'code');
-        if ($token->exists()) {
+        if (!$token->exists()) {
             $api->throwError('oauth2:invalid_code');
         }
 
