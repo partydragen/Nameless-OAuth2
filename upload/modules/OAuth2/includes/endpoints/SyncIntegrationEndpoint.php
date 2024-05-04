@@ -33,10 +33,8 @@ class SyncIntegrationEndpoint extends KeyAuthEndpoint {
             ]);
         }
 
-        // Sync integration
-        if (isset($_POST['user']['groups'])) {
-            $user = $integration_user->getUser();
-
+        // Sync groups
+        if (isset($_POST['user']['groups']) && $application->data()->group_sync) {
             $log_array = GroupSyncManager::getInstance()->broadcastChange(
                 $user,
                 ApplicationGroupSyncInjector::class,
@@ -45,6 +43,36 @@ class SyncIntegrationEndpoint extends KeyAuthEndpoint {
 
             if (count($log_array)) {
                 Log::getInstance()->log('oauth2/group_set', json_encode($log_array), $user->data()->id);
+            }
+        }
+
+        // Sync integrations
+        if (isset($_POST['user']['integrations']) && $application->data()->sync_integrations) {
+            $integrations = Integrations::getInstance();
+
+            foreach ($_POST['user']['integrations'] as $item) {
+                if (!isset($item['identifier']) || !isset($item['username'])) {
+                    continue;
+                }
+
+                $integration = $integrations->getIntegration($item['integration']);
+                if ($integration === null) {
+                    continue;
+                }
+
+                if ($user->getIntegration($integration->getName()) == null) {
+                    // Link integration
+                    $integrationUser = new IntegrationUser($integration);
+                    $integrationUser->linkIntegration($user, $item['identifier'], $item['username'], $item['verified']);
+                } else {
+                    // Update existing integration
+                    $integrationUser = $user->getIntegration($integration->getName());
+                    $integrationUser->update([
+                        'identifier' => $item['identifier'],
+                        'username' => $item['username'],
+                        'verified' => $item['verified']
+                    ]);
+                }
             }
         }
 

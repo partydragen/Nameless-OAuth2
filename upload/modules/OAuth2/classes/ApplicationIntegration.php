@@ -195,9 +195,25 @@ class ApplicationIntegration extends IntegrationBase {
             return;
         }
 
+        // User groups
         $groups_list = [];
         foreach ($user->getAllGroupIds() as $group) {
             $groups_list[] = $group;
+        }
+
+        // User integrations
+        $integrations_list = [];
+        foreach ($user->getIntegrations() as $key => $integrationUser) {
+            if ($integrationUser->data()->identifier === null && $integrationUser->data()->username === null) {
+                continue;
+            }
+
+            $integrations_list[] = [
+                'integration' => Output::getClean($key),
+                'identifier' => Output::getClean($integrationUser->data()->identifier),
+                'username' => Output::getClean($integrationUser->data()->username),
+                'verified' => $integrationUser->isVerified()
+            ];
         }
 
         $post = [
@@ -209,7 +225,8 @@ class ApplicationIntegration extends IntegrationBase {
                 'id' => $user->data()->id,
                 'username' => $user->data()->username,
                 'email' => $user->data()->email,
-                'groups' => $groups_list
+                'groups' => $groups_list,
+                'integrations' => $integrations_list,
             ],
             'external_application' => [
                 'client_id' => $this->_application->data()->nameless_client_id,

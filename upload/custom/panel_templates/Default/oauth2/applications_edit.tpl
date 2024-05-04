@@ -95,6 +95,12 @@
                                         Sync groups?
                                     </label>
                                 </div>
+                                <div class="form-group custom-control custom-switch">
+                                    <input id="inputSyncIntegrations" name="sync_integrations" type="checkbox" class="custom-control-input"{if $SYNC_INTEGRATIONS_VALUE eq 1} checked{/if} />
+                                    <label class="custom-control-label" for="inputSyncIntegrations">
+                                        Sync integrations?
+                                    </label>
+                                </div>
                                 <div class="form-group">
                                     <label for="InputNamelessURL">Website URL</label>
                                     <input type="text" name="nameless_url" class="form-control" id="InputNamelessURL" placeholder="Website URL" value="{$NAMELESS_URL_VALUE}">

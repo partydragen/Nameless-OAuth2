@@ -163,6 +163,7 @@ class OAuth2_Module extends Module {
         if ($old_version < 110) {
             try {
                 DB::getInstance()->query("ALTER TABLE `nl2_oauth2_applications` ADD `skip_approval` tinyint(1) NOT NULL DEFAULT '0'");
+                DB::getInstance()->query("ALTER TABLE `nl2_oauth2_applications` ADD `sync_integrations` tinyint(1) NOT NULL DEFAULT '0'");
             } catch (Exception $e) {
                 // Error
             }

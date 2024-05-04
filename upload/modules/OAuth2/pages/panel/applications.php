@@ -132,6 +132,7 @@ if (!isset($_GET['action'])) {
                             // NamelessMC Integration
                             $nameless_integration = (isset($_POST['nameless_integration']) && $_POST['nameless_integration'] == 'on') ? '1' : '0';
                             $sync_groups = (isset($_POST['sync_groups']) && $_POST['sync_groups'] == 'on') ? '1' : '0';
+                            $sync_integrations = (isset($_POST['sync_integrations']) && $_POST['sync_integrations'] == 'on') ? '1' : '0';
                             $skip_approval = (isset($_POST['skip_approval']) && $_POST['skip_approval'] == 'on') ? '1' : '0';
 
                             if ($sync_groups) {
@@ -154,6 +155,7 @@ if (!isset($_GET['action'])) {
                                 'nameless_api_key' => !empty(Input::get('nameless_api_key')) ? Input::get('nameless_api_key') : null,
                                 'skip_approval' => $skip_approval,
                                 'group_sync' => $sync_groups,
+                                'sync_integrations' => $sync_integrations
                             ]);
 
                             Session::flash('staff_applications', $oauth2_language->get('general', 'application_updated_successfully'));
@@ -186,6 +188,7 @@ if (!isset($_GET['action'])) {
                 'NAMELESS_API_KEY_VALUE' => Output::getClean($application->data()->nameless_api_key),
                 'SKIP_APPROVAL_VALUE' => Output::getClean($application->data()->skip_approval),
                 'SYNC_GROUPS_VALUE' => Output::getClean($application->data()->group_sync),
+                'SYNC_INTEGRATIONS_VALUE' => Output::getClean($application->data()->sync_integrations),
                 'CHANGE' => $language->get('general', 'change'),
                 'COPY' => $language->get('admin', 'copy'),
                 'COPIED' => $language->get('admin', 'copied'),
