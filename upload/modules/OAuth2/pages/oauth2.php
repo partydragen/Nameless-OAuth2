@@ -12,14 +12,16 @@ define('PAGE', 'oauth2');
 $page_title = $oauth2_language->get('general', 'oauth2');
 require_once(ROOT_PATH . '/core/templates/frontend_init.php');
 
-// Must be logged in
-if(!$user->isLoggedIn()){
-	Redirect::to(URL::build('/login'));
-}
-
 if (!isset($_GET['client_id'])) {
     require_once(ROOT_PATH . '/403.php');
     die();
+}
+
+Session::put('application_client', $_GET['client_id']);
+
+// Must be logged in
+if(!$user->isLoggedIn()){
+    Redirect::to(URL::build('/login'));
 }
 
 // Get application by client id

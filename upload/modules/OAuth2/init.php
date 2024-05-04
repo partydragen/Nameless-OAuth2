@@ -11,7 +11,7 @@
 // Initialise forms language
 $oauth2_language = new Language(ROOT_PATH . '/modules/OAuth2/language', LANGUAGE);
 
- // Load classes
+// Load classes
 spl_autoload_register(function ($class) {
     $path = join(DIRECTORY_SEPARATOR, array(ROOT_PATH, 'modules', 'OAuth2', 'classes', $class . '.php'));
     if (file_exists($path)) {

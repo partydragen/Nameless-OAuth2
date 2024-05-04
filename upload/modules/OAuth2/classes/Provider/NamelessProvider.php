@@ -21,6 +21,11 @@ class NamelessProvider extends AbstractProvider {
      * @return string
      */
     public function getBaseAuthorizationUrl() {
+        if (Session::exists("referral_code")) {
+            $code = Session::get("referral_code");
+            return $this->_application->getWebsiteURL() . '/oauth2/authorize/?ref=' . $code;
+        }
+
         return $this->_application->getWebsiteURL() . '/oauth2/authorize/';
     }
 

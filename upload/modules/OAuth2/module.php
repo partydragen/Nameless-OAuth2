@@ -37,6 +37,7 @@ class OAuth2_Module extends Module {
             if ($module_version != $cache->retrieve('module_version')) {
                 // Version have changed, Perform actions
                 //$this->initialiseUpdate($cache->retrieve('module_version'));
+                $this->initialiseUpdate($cache->retrieve('module_version'));
 
                 $cache->store('module_version', $module_version);
 

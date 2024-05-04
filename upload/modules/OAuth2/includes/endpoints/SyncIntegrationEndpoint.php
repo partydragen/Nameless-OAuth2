@@ -25,6 +25,7 @@ class SyncIntegrationEndpoint extends KeyAuthEndpoint {
         if (!$integration_user->exists()) {
             $api->throwError(CoreApiErrors::ERROR_INTEGRATION_NOT_LINKED);
         }
+        $user = $integration_user->getUser();
 
         // Sync integration username
         if (isset($_POST['user']['username'])) {
