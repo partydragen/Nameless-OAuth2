@@ -129,6 +129,7 @@ if (!isset($_GET['action'])) {
                     if ($validation->passed()) {
                         // Update application
                         try {
+                            $skip_approval = (isset($_POST['skip_approval']) && $_POST['skip_approval'] == 'on') ? '1' : '0';
                             // Save to database
                             $application->update([
                                 'name' => Input::get('name'),
@@ -137,6 +138,7 @@ if (!isset($_GET['action'])) {
                                 'nameless_url' => !empty(Input::get('nameless_url')) ? rtrim(Input::get('nameless_url'), '/') : null,
                                 'nameless_client_id' => !empty(Input::get('nameless_client_id')) ? Input::get('nameless_client_id') : null,
                                 'nameless_api_key' => !empty(Input::get('nameless_api_key')) ? Input::get('nameless_api_key') : null,
+                                'skip_approval' => $skip_approval,
                             ]);
 
                             Session::flash('staff_applications', $oauth2_language->get('general', 'application_updated_successfully'));
@@ -167,6 +169,7 @@ if (!isset($_GET['action'])) {
                 'NAMELESS_URL_VALUE' => Output::getClean($application->data()->nameless_url),
                 'NAMELESS_CLIENT_ID_VALUE' => Output::getClean($application->data()->nameless_client_id),
                 'NAMELESS_API_KEY_VALUE' => Output::getClean($application->data()->nameless_api_key),
+                'SKIP_APPROVAL_VALUE' => Output::getClean($application->data()->skip_approval),
                 'CHANGE' => $language->get('general', 'change'),
                 'COPY' => $language->get('admin', 'copy'),
                 'COPIED' => $language->get('admin', 'copied'),

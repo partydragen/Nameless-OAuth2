@@ -39,6 +39,23 @@ if (!isset($_GET['redirect_uri']) || $application->getRedirectURI() != $_GET['re
     $errors[] = $oauth2_language->get('general', 'invalid_redirect_uri');
 }
 
+// Skip user approval if enabled
+if ($application->data()->skip_approval === 1) {
+    // Generate a code
+    $code = SecureRandom::alphanumeric();
+
+    DB::getInstance()->insert('oauth2_tokens', [
+        'application_id' => $application->data()->id,
+        'user_id' => $user->data()->id,
+        'code' => $code,
+        'access_token' => SecureRandom::alphanumeric(),
+        'refresh_token' => SecureRandom::alphanumeric(),
+        'created' => date('U')
+    ]);
+
+    Redirect::to($application->getRedirectURI() . "&code=$code");
+}
+
 if (!isset($errors)) {
     if (Input::exists()) {
         if (Token::check(Input::get('token'))) {

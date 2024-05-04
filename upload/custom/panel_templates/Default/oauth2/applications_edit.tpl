@@ -70,6 +70,12 @@
                                     <label for="InputUrl">{$REDIRECT_URI}</label>
                                     <input type="text" name="redirect_uri" class="form-control" id="InputRedirectURI" placeholder="{$REDIRECT_URI}" value="{$REDIRECT_URI_VALUE}">
                                 </div>
+                                <div class="form-group custom-control custom-switch">
+                                    <input id="inputSkipApproval" name="skip_approval" type="checkbox" class="custom-control-input"{if $SKIP_APPROVAL_VALUE eq 1} checked{/if} />
+                                    <label class="custom-control-label" for="inputSkipApproval">
+                                        Ship OAuth2 approval?
+                                    </label>
+                                </div>
                         </div>
                     </div>
 
