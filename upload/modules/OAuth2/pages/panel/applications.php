@@ -136,7 +136,7 @@ if (!isset($_GET['action'])) {
                             $skip_approval = (isset($_POST['skip_approval']) && $_POST['skip_approval'] == 'on') ? '1' : '0';
 
                             if ($sync_groups) {
-                                $column = strtolower(Input::get('name')) . '_group_id';
+                                $column = 'app_' . $application->data()->id . '_group_id';
 
                                 try {
                                     DB::getInstance()->query("ALTER TABLE `nl2_group_sync` ADD $column int(11) DEFAULT NULL");

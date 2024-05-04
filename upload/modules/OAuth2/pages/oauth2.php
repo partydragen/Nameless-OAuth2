@@ -17,6 +17,11 @@ if (!isset($_GET['client_id'])) {
     die();
 }
 
+// Load modules + template
+Module::loadPage($user, $pages, $cache, $smarty, [$navigation, $cc_nav, $staffcp_nav], $widgets, $template);
+
+$template->onPageLoad();
+
 Session::put('application_client', $_GET['client_id']);
 
 // Must be logged in
@@ -111,11 +116,6 @@ if (isset($errors) && count($errors))
 		'ERRORS' => $errors,
 		'ERRORS_TITLE' => $language->get('general', 'error')
 	]);
-
-// Load modules + template
-Module::loadPage($user, $pages, $cache, $smarty, [$navigation, $cc_nav, $staffcp_nav], $widgets, $template);
-
-$template->onPageLoad();
 
 require(ROOT_PATH . '/core/templates/navbar.php');
 require(ROOT_PATH . '/core/templates/footer.php');
