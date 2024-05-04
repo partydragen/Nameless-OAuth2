@@ -89,6 +89,12 @@
                                         Add integration & OAuth
                                     </label>
                                 </div>
+                                <div class="form-group custom-control custom-switch">
+                                    <input id="inputSyncGroups" name="sync_groups" type="checkbox" class="custom-control-input"{if $SYNC_GROUPS_VALUE eq 1} checked{/if} />
+                                    <label class="custom-control-label" for="inputSyncGroups">
+                                        Sync groups?
+                                    </label>
+                                </div>
                                 <div class="form-group">
                                     <label for="InputNamelessURL">Website URL</label>
                                     <input type="text" name="nameless_url" class="form-control" id="InputNamelessURL" placeholder="Website URL" value="{$NAMELESS_URL_VALUE}">
