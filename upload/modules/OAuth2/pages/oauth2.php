@@ -25,7 +25,7 @@ $template->onPageLoad();
 Session::put('application_client', $_GET['client_id']);
 
 // Must be logged in
-if(!$user->isLoggedIn()){
+if (!$user->isLoggedIn()){
     Redirect::to(URL::build('/login'));
 }
 
@@ -60,7 +60,7 @@ if ($application->data()->skip_approval === 1) {
         'created' => date('U')
     ]);
 
-    Redirect::to($application->getRedirectURI() . "&code=$code");
+    Redirect::to($application->getRedirectURI() . (str_contains($application->getRedirectURI(), '?') ? '&' : '?') . 'code=' . $code);
 }
 
 if (!isset($errors)) {
@@ -78,7 +78,7 @@ if (!isset($errors)) {
                 'created' => date('U')
             ]);
 
-            Redirect::to($application->getRedirectURI() . "&code=$code");
+            Redirect::to($application->getRedirectURI() . (str_contains($application->getRedirectURI(), '?') ? '&' : '?') . 'code=' . $code);
         } else {
             // Invalid token
             $errors[] = $language->get('general', 'invalid_token');
