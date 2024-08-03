@@ -156,7 +156,9 @@ class ApplicationIntegration extends IntegrationBase {
     }
 
     public function syncIntegrationUser(IntegrationUser $integration_user): bool {
-        $this->syncExternalUserIntegration($integration_user->getUser());
+        $this->linkIntegration($integration_user->getUser(), $integration_user->data()->identifier);
+
+        //$this->syncExternalUserIntegration($integration_user->getUser());
 
         return false;
     }
@@ -178,13 +180,14 @@ class ApplicationIntegration extends IntegrationBase {
         $request = HttpClient::get($api_url . '/oauth2/application&client_id=' . $this->_application->data()->nameless_client_id, $header);
         if (!$request->hasError()) {
             $result = $request->json(true);
-            
+
             if  ($result['nameless_integration']['enabled']) {
                 HttpClient::post($api_url . '/users/' . $identifier . '/integrations/link', json_encode([
                     'integration' => $result['name'],
                     'identifier' => $user->data()->id,
                     'username' => $user->data()->username,
-                    'verified' => true
+                    'verified' => true,
+                    'referral' => Session::exists("referral_code") ? Session::get("referral_code") : null
                 ]), $header);
             }
         }

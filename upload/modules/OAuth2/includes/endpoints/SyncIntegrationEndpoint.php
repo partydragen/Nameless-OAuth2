@@ -34,46 +34,54 @@ class SyncIntegrationEndpoint extends KeyAuthEndpoint {
             ]);
         }
 
-        // Sync groups
-        if (isset($_POST['user']['groups']) && $application->data()->group_sync) {
-            $log_array = GroupSyncManager::getInstance()->broadcastChange(
-                $user,
-                ApplicationGroupSyncInjector::class,
-                $_POST['user']['groups']
-            );
+        // Sync integrations
+        if (isset($_POST['user']['integrations']) && $application->data()->sync_integrations) {
+            try {
+                $integrations = Integrations::getInstance();
 
-            if (count($log_array)) {
-                Log::getInstance()->log('oauth2/group_set', json_encode($log_array), $user->data()->id);
+                foreach ($_POST['user']['integrations'] as $item) {
+                    if (!isset($item['identifier']) || !isset($item['username'])) {
+                        continue;
+                    }
+
+                    $integration = $integrations->getIntegration($item['integration']);
+                    if ($integration === null) {
+                        continue;
+                    }
+
+                    if ($user->getIntegration($integration->getName()) == null) {
+                        // Link integration
+                        $integrationUser = new IntegrationUser($integration);
+                        $integrationUser->linkIntegration($user, $item['identifier'], $item['username'], $item['verified']);
+                    } else {
+                        // Update existing integration
+                        $integrationUser = $user->getIntegration($integration->getName());
+                        $integrationUser->update([
+                            'identifier' => $item['identifier'],
+                            'username' => $item['username'],
+                            'verified' => $item['verified']
+                        ]);
+                    }
+                }
+            } catch (Exception $e) {
+                // Error
             }
         }
 
-        // Sync integrations
-        if (isset($_POST['user']['integrations']) && $application->data()->sync_integrations) {
-            $integrations = Integrations::getInstance();
+        // Sync groups
+        if (isset($_POST['user']['groups']) && $application->data()->group_sync) {
+            try {
+                $log_array = GroupSyncManager::getInstance()->broadcastChange(
+                    $user,
+                    ApplicationGroupSyncInjector::class,
+                    $_POST['user']['groups']
+                );
 
-            foreach ($_POST['user']['integrations'] as $item) {
-                if (!isset($item['identifier']) || !isset($item['username'])) {
-                    continue;
+                if (count($log_array)) {
+                    Log::getInstance()->log('oauth2/group_set', json_encode($log_array), $user->data()->id);
                 }
-
-                $integration = $integrations->getIntegration($item['integration']);
-                if ($integration === null) {
-                    continue;
-                }
-
-                if ($user->getIntegration($integration->getName()) == null) {
-                    // Link integration
-                    $integrationUser = new IntegrationUser($integration);
-                    $integrationUser->linkIntegration($user, $item['identifier'], $item['username'], $item['verified']);
-                } else {
-                    // Update existing integration
-                    $integrationUser = $user->getIntegration($integration->getName());
-                    $integrationUser->update([
-                        'identifier' => $item['identifier'],
-                        'username' => $item['username'],
-                        'verified' => $item['verified']
-                    ]);
-                }
+            } catch (Exception $e) {
+                // Error
             }
         }
 
