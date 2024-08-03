@@ -27,6 +27,7 @@ class OAuth2_Module extends Module {
 
         // Define URLs which belong to this module
         $pages->add('OAuth2', '/oauth2/authorize', 'pages/oauth2.php');
+        $pages->add('OAuth2', '/user/applications', 'pages/user/applications.php');
         $pages->add('OAuth2', '/panel/applications', 'pages/panel/applications.php');
 
         // Check if module version changed
