@@ -9,6 +9,7 @@
     "general/client_id": "Client ID",
     "general/client_secret": "Client Secret",
     "general/redirect_uri": "Redirect URI",
+    "general/oauth2_url": "OAuth2 URL",
     "general/editing_application_x": "Editing application {{application}}",
     "general/confirm_secret_regen": "Are you sure you want to regenerate your Client Secret key?",
     "general/client_secret_key_regenerated": "The Client Secret key has been regenerated successfully.",

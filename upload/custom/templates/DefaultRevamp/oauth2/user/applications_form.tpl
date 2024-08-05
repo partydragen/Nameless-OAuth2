@@ -61,6 +61,13 @@
                         <input type="hidden" name="token" value="{$TOKEN}">
                         <input type="submit" class="ui primary button" value="{$SUBMIT}">
                     </div>
+
+                    <div class="ui divider"></div>
+
+                    <div class="field">
+                        <label for="inputOAuthURL">{$OAUTH2_URL}</label>
+                        <input type="text" name="oauth_url" id="inputOAuthURL" value="{$OAUTH2_URL_VALUE}" readonly>
+                    </div>
                 </form>
 
             </div>

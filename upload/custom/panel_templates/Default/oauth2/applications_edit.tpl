@@ -59,6 +59,13 @@
                                         <span class="input-group-append"><a onclick="copyClientSecret();" class="btn btn-info text-white">{$COPY}</a></span>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="InputOAuth2URL">{$OAUTH2_URL}</label>
+                                    <div class="input-group">
+                                        <input type="text" name="oauth_url" class="form-control" id="InputOAuth2URL" placeholder="{$OAUTH2_URL}" value="{$OAUTH2_URL_VALUE}" readonly>
+                                        <span class="input-group-append"><a onclick="copyAuthURL();" class="btn btn-info text-white">{$COPY}</a></span>
+                                    </div>
+                                </div>
 
                                 <hr />
 
@@ -192,6 +199,24 @@
 
         function copyClientSecret() {
             let url = document.getElementById("InputClientSecret");
+            url.select();
+            document.execCommand("copy");
+
+            // Toast
+            $('body').toast({
+                showIcon: 'fa-solid fa-check move-right',
+                message: '{$COPIED}',
+                class: 'success',
+                progressUp: true,
+                displayTime: 6000,
+                showProgress: 'bottom',
+                pauseOnHover: false,
+                position: 'bottom left',
+            });
+        }
+
+        function copyAuthURL() {
+            let url = document.getElementById("InputOAuth2URL");
             url.select();
             document.execCommand("copy");
 

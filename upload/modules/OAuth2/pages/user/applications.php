@@ -2,7 +2,7 @@
 /*
  *  Made by Partydragen
  *  https://github.com/partydragen/Nameless-OAuth2
- *  NamelessMC version 2.1.2
+ *  NamelessMC version 2.2.0
  *
  *  License: MIT
  *
@@ -174,6 +174,8 @@ if (!isset($_GET['action'])) {
                 'APPLICATION_NAME_VALUE' => Output::getClean($application->data()->name),
                 'REDIRECT_URI' => $oauth2_language->get('general', 'redirect_uri'),
                 'REDIRECT_URI_VALUE' => Output::getClean($application->data()->redirect_uri),
+                'OAUTH2_URL' => $oauth2_language->get('general', 'oauth2_url'),
+                'OAUTH2_URL_VALUE' => $application->getAuthURL([])
             ]);
 
             $template_file = 'oauth2/user/applications_form.tpl';

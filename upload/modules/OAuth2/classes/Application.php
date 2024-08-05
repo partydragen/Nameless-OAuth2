@@ -4,7 +4,7 @@
  *
  * @package Modules\OAuth2
  * @author Partydragen
- * @version 2.0.2
+ * @version 2.2.0
  * @license MIT
  */
 class Application {
@@ -69,5 +69,11 @@ class Application {
 
     public function getRedirectURI() {
         return $this->data()->redirect_uri;
+    }
+
+    public function getAuthURL(array $scopes): string {
+        $scopes = implode('+', $scopes);
+
+        return rtrim(URL::getSelfURL(), '/') . URL::build('/oauth2/authorize/', 'client_id=' . Output::getClean($this->data()->client_id) . '&response_type=code&redirect_uri=' . urlencode($this->data()->redirect_uri) . '&scope=' . $scopes);
     }
 }

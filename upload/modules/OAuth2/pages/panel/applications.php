@@ -2,7 +2,7 @@
 /*
  *  Made by Partydragen
  *  https://github.com/partydragen/Nameless-OAuth2
- *  NamelessMC version 2.0.2
+ *  NamelessMC version 2.2.0
  *
  *  License: MIT
  *
@@ -196,7 +196,9 @@ if (!isset($_GET['action'])) {
                 'CONFIRM_SECRET_REGEN' => $oauth2_language->get('general', 'confirm_secret_regen'),
                 'YES' => $language->get('general', 'yes'),
                 'NO' => $language->get('general', 'no'),
-                'REGEN_CLIENT_SECRET_LINK' => URL::build('/panel/applications/', 'action=regen&app=' . $application->data()->id)
+                'REGEN_CLIENT_SECRET_LINK' => URL::build('/panel/applications/', 'action=regen&app=' . $application->data()->id),
+                'OAUTH2_URL' => $oauth2_language->get('general', 'oauth2_url'),
+                'OAUTH2_URL_VALUE' => $application->getAuthURL([])
             ]);
         
             $template_file = 'oauth2/applications_edit.tpl';
