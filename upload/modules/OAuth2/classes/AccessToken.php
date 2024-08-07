@@ -20,6 +20,10 @@ class AccessToken {
 
             if (hash_equals($value, $this->_data->access_token)) {
                 $this->_authorised = true;
+
+                DB::getInstance()->update('oauth2_tokens', $this->_data->id, [
+                    'last_used' => date('U')
+                ]);
             }
         }
     }
