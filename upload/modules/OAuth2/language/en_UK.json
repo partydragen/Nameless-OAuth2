@@ -24,5 +24,6 @@
     "general/current_version_x": "Current module version: {{version}}",
     "general/new_version_x": "New module version: {{new_version}}",
     "general/user_no_applications": "You do not have any applications.",
-    "general/application_name": "Application Name"
+    "general/application_name": "Application Name",
+    "general/no_scopes_provided": "No scopes were provided"
 }

@@ -10,7 +10,7 @@ class OAuth2ResourcesLicensesEndpoint extends AccessTokenAuthEndpoint {
 
     public function execute(Nameless2API $api, AccessToken $token): void {
         if (!$token->hasScope('resources.licenses')) {
-            $api->throwError(OAuth2ApiErrors::ERROR_MISSING_SCOPE);
+            $api->throwError(OAuth2ApiErrors::ERROR_MISSING_SCOPE, ['scope' => 'resources.licenses']);
         }
 
         // Make sure user still exist

@@ -2,7 +2,7 @@
 /*
  *  Made by Partydragen
  *  https://github.com/partydragen/Nameless-OAuth2
- *  NamelessMC version 2.0.2
+ *  NamelessMC version 2.2.0
  *
  *  License: MIT
  *
@@ -57,7 +57,7 @@ class OAuth2_Module extends Module {
                 NamelessOAuth::getInstance()->registerProvider(strtolower($application->getName()), 'OAuth2', [
                     'class' => NamelessProvider::class,
                     'user_id_name' => 'id',
-                    'scope_id_name' => 'identify',
+                    'scope_id_name' => 'identity',
                     'icon' => 'fa-solid fa-globe',
                     'verify_email' => static fn () => true,
                 ]);
@@ -69,6 +69,17 @@ class OAuth2_Module extends Module {
             }
         } catch (Exception $e) {
             // Database tables don't exist yet
+        }
+
+        //EventHandler::registerListener(UserUpdatedEvent::class, UserUpdatedListener::class);
+
+        OAuth2::registerScope('identity', 'Your username');
+        OAuth2::registerScope('email', 'Your email address');
+        OAuth2::registerScope('ps.write', 'Manage your playerservers');
+        OAuth2::registerScope('ps.write.others', 'Manage playerservers you have access too');
+
+        if (Util::isModuleEnabled('Resources')) {
+            OAuth2::registerScope('resources.licenses', 'Read your resource licenses');
         }
 
         $endpoints->loadEndpoints(ROOT_PATH . '/modules/OAuth2/includes/endpoints');
@@ -168,6 +179,12 @@ class OAuth2_Module extends Module {
             } catch (Exception $e) {
                 // Error
             }
+
+            try {
+                DB::getInstance()->query("ALTER TABLE `nl2_oauth2_tokens` ADD `scopes` varchar(1024) NOT NULL");
+            } catch (Exception $e) {
+                // Error
+            }
         }
     }
 
@@ -183,7 +200,7 @@ class OAuth2_Module extends Module {
 
         if (!$this->_db->showTables('oauth2_tokens')) {
             try {
-                $this->_db->createTable("oauth2_tokens", " `id` int(11) NOT NULL AUTO_INCREMENT, `application_id` int(11) NOT NULL, `user_id` int(11) NOT NULL, `code` varchar(64) NOT NULL, `access_token` varchar(64) NOT NULL, `refresh_token` varchar(64) NOT NULL, `created` int(11) NOT NULL, PRIMARY KEY (`id`)");
+                $this->_db->createTable("oauth2_tokens", " `id` int(11) NOT NULL AUTO_INCREMENT, `application_id` int(11) NOT NULL, `user_id` int(11) NOT NULL, `code` varchar(64) NOT NULL, `access_token` varchar(64) NOT NULL, `refresh_token` varchar(64) NOT NULL, `scopes` varchar(1024) NOT NULL, `created` int(11) NOT NULL, PRIMARY KEY (`id`)");
             } catch (Exception $e) {
                 // Error
                 die($e);

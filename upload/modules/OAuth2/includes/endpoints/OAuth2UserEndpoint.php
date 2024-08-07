@@ -10,7 +10,7 @@ class OAuth2UserEndpoint extends AccessTokenAuthEndpoint {
 
     public function execute(Nameless2API $api, AccessToken $token): void {
         if (!$token->hasScope('identity')) {
-            $api->throwError(OAuth2ApiErrors::ERROR_MISSING_SCOPE);
+            $api->throwError(OAuth2ApiErrors::ERROR_MISSING_SCOPE, ['scope' => 'identity']);
         }
 
         // Make sure user still exist
@@ -19,10 +19,15 @@ class OAuth2UserEndpoint extends AccessTokenAuthEndpoint {
             $api->throwError(Nameless2API::ERROR_CANNOT_FIND_USER);
         }
 
-        $api->returnArray([
+        $data = [
             'id' => $user->data()->id,
             'username' => $user->data()->username,
-            'email' => $user->data()->email
-        ]);
+        ];
+
+        if ($token->hasScope('email')) {
+            $data['email'] = $user->data()->email;
+        }
+
+        $api->returnArray($data);
     }
 }

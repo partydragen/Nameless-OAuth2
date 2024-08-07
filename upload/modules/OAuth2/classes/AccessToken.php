@@ -33,7 +33,9 @@ class AccessToken {
     }
 
     public function hasScope(string $scope): bool {
-        return true;
+        $scopes = explode(' ', $this->data()->scopes);
+
+        return in_array($scope, $scopes);
     }
 
     /**

@@ -46,6 +46,12 @@ if (!isset($_GET['redirect_uri']) || $application->getRedirectURI() != $_GET['re
     $errors[] = $oauth2_language->get('general', 'invalid_redirect_uri');
 }
 
+// Get requested scopes
+$requested_scopes = OAuth2::getScopesFromString($_GET['scope'] ?? '');
+if (!count($requested_scopes)) {
+    $errors[] = $oauth2_language->get('general', 'no_scopes_provided');
+}
+
 // Skip user approval if enabled
 if ($application->data()->skip_approval === 1) {
     // Generate a code
@@ -57,7 +63,8 @@ if ($application->data()->skip_approval === 1) {
         'code' => $code,
         'access_token' => SecureRandom::alphanumeric(),
         'refresh_token' => SecureRandom::alphanumeric(),
-        'created' => date('U')
+        'created' => date('U'),
+        'scopes' => implode(' ', array_keys($requested_scopes))
     ]);
 
     Redirect::to($application->getRedirectURI() . (str_contains($application->getRedirectURI(), '?') ? '&' : '?') . 'code=' . $code);
@@ -75,7 +82,8 @@ if (!isset($errors)) {
                 'code' => $code,
                 'access_token' => SecureRandom::alphanumeric(),
                 'refresh_token' => SecureRandom::alphanumeric(),
-                'created' => date('U')
+                'created' => date('U'),
+                'scopes' => implode(' ', array_keys($requested_scopes))
             ]);
 
             Redirect::to($application->getRedirectURI() . (str_contains($application->getRedirectURI(), '?') ? '&' : '?') . 'code=' . $code);
@@ -84,9 +92,11 @@ if (!isset($errors)) {
             $errors[] = $language->get('general', 'invalid_token');
         }
     }
-    
-    $access_to[] = $oauth2_language->get('general', 'your_username');
-    $access_to[] = $oauth2_language->get('general', 'your_email');
+
+    $access_to = [];
+    foreach ($requested_scopes as $scope) {
+        $access_to[] = $scope;
+    }
 
     $smarty->assign([
         'APPLICATION_NAME' => Output::getClean($application->getName()),
