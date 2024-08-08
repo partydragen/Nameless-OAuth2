@@ -71,8 +71,6 @@ class OAuth2_Module extends Module {
             // Database tables don't exist yet
         }
 
-        //EventHandler::registerListener(UserUpdatedEvent::class, UserUpdatedListener::class);
-
         OAuth2::registerScope('identity', 'Your username');
         OAuth2::registerScope('email', 'Your email address');
         OAuth2::registerScope('ps.write', 'Manage your playerservers');
@@ -166,7 +164,30 @@ class OAuth2_Module extends Module {
     }
 
     public function getDebugInfo(): array {
-        return [];
+        $applications_list = [];
+        $applications = $this->_db->query("SELECT * FROM nl2_oauth2_applications WHERE nameless = 1 AND enabled = 1")->results();
+        foreach ($applications as $app) {
+            $application = new Application(null, null, $app);
+
+            $applications_list[] = [
+                'id' => $application->data()->id,
+                'user_id' => $application->data()->user_id,
+                'client_id' => $application->data()->client_id,
+                'redirect_uri' => $application->data()->redirect_uri,
+                'nameless' => $application->data()->nameless,
+                'nameless_url' => $application->data()->nameless_url,
+                'nameless_client_id' => $application->data()->nameless_client_id,
+                'nameless_api_key' => $application->data()->nameless_api_key,
+                'group_sync' => $application->data()->group_sync,
+                'sync_integrations' => $application->data()->sync_integrations,
+                'skip_approval' => $application->data()->skip_approval,
+                'enabled' => $application->data()->enabled,
+            ];
+        }
+
+        return [
+            'applications' => $applications_list
+        ];
     }
 
     private function initialiseUpdate($old_version) {
@@ -181,6 +202,7 @@ class OAuth2_Module extends Module {
             }
 
             try {
+                DB::getInstance()->query("ALTER TABLE `nl2_oauth2_tokens` ADD `last_used` int(11) DEFAULT NULL");
                 DB::getInstance()->query("ALTER TABLE `nl2_oauth2_tokens` ADD `scopes` varchar(1024) NOT NULL");
             } catch (Exception $e) {
                 // Error
@@ -200,7 +222,7 @@ class OAuth2_Module extends Module {
 
         if (!$this->_db->showTables('oauth2_tokens')) {
             try {
-                $this->_db->createTable("oauth2_tokens", " `id` int(11) NOT NULL AUTO_INCREMENT, `application_id` int(11) NOT NULL, `user_id` int(11) NOT NULL, `code` varchar(64) NOT NULL, `access_token` varchar(64) NOT NULL, `refresh_token` varchar(64) NOT NULL, `scopes` varchar(1024) NOT NULL, `created` int(11) NOT NULL, PRIMARY KEY (`id`)");
+                $this->_db->createTable("oauth2_tokens", " `id` int(11) NOT NULL AUTO_INCREMENT, `application_id` int(11) NOT NULL, `user_id` int(11) NOT NULL, `code` varchar(64) NOT NULL, `access_token` varchar(64) NOT NULL, `refresh_token` varchar(64) NOT NULL, `scopes` varchar(1024) NOT NULL, `created` int(11) NOT NULL, `last_used` int(11) DEFAULT NULL, PRIMARY KEY (`id`)");
             } catch (Exception $e) {
                 // Error
                 die($e);
