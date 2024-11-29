@@ -22,6 +22,7 @@ class OAuth2UserEndpoint extends AccessTokenAuthEndpoint {
         $data = [
             'id' => $user->data()->id,
             'username' => $user->data()->username,
+            'avatar' => $user->getAvatar(128, true)
         ];
 
         if ($token->hasScope('email')) {
