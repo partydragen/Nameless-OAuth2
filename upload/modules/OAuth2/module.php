@@ -57,7 +57,7 @@ class OAuth2_Module extends Module {
                 NamelessOAuth::getInstance()->registerProvider(strtolower($application->getName()), 'OAuth2', [
                     'class' => NamelessProvider::class,
                     'user_id_name' => 'id',
-                    'scope_id_name' => 'identity',
+                    'scope_id_name' => 'identify',
                     'icon' => 'fa-solid fa-globe',
                     'verify_email' => static fn () => true,
                 ]);
@@ -71,7 +71,7 @@ class OAuth2_Module extends Module {
             // Database tables don't exist yet
         }
 
-        OAuth2::registerScope('identity', 'Your username');
+        OAuth2::registerScope('identify', 'Your username');
         OAuth2::registerScope('email', 'Your email address');
         OAuth2::registerScope('ps.write', 'Manage your playerservers');
         OAuth2::registerScope('ps.write.others', 'Manage playerservers you have access too');
