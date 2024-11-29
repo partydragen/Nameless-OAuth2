@@ -37,4 +37,9 @@ class AccessTokenAuthEndpoint extends EndpointBase {
     public function customParams(): array {
         return [$this->_token];
     }
+
+    public function getAccessToken(): AccessToken {
+        return $this->_token;
+    }
+
 }

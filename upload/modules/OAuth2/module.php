@@ -20,8 +20,8 @@ class OAuth2_Module extends Module {
 
         $name = 'OAuth2';
         $author = '<a href="https://partydragen.com/" target="_blank" rel="nofollow noopener">Partydragen</a>';
-        $module_version = '1.0.3';
-        $nameless_version = '2.1.1';
+        $module_version = '1.1.0';
+        $nameless_version = '2.1.2';
 
         parent::__construct($this, $name, $author, $module_version, $nameless_version);
 
@@ -73,8 +73,6 @@ class OAuth2_Module extends Module {
 
         OAuth2::registerScope('identify', 'Your username');
         OAuth2::registerScope('email', 'Your email address');
-        OAuth2::registerScope('ps.write', 'Manage your playerservers');
-        OAuth2::registerScope('ps.write.others', 'Manage playerservers you have access too');
 
         if (Util::isModuleEnabled('Resources')) {
             OAuth2::registerScope('resources.licenses', 'Read your resource licenses');
