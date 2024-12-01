@@ -2,7 +2,7 @@
 /*
  *  Made by Partydragen
  *  https://github.com/partydragen/Nameless-OAuth2
- *  NamelessMC version 2.0.2
+ *  NamelessMC version 2.2.0
  *
  *  License: MIT
  *
@@ -129,14 +129,33 @@ if (!isset($_GET['action'])) {
                     if ($validation->passed()) {
                         // Update application
                         try {
+                            // NamelessMC Integration
+                            $nameless_integration = (isset($_POST['nameless_integration']) && $_POST['nameless_integration'] == 'on') ? '1' : '0';
+                            $sync_groups = (isset($_POST['sync_groups']) && $_POST['sync_groups'] == 'on') ? '1' : '0';
+                            $sync_integrations = (isset($_POST['sync_integrations']) && $_POST['sync_integrations'] == 'on') ? '1' : '0';
+                            $skip_approval = (isset($_POST['skip_approval']) && $_POST['skip_approval'] == 'on') ? '1' : '0';
+
+                            if ($sync_groups) {
+                                $column = 'app_' . $application->data()->id . '_group_id';
+
+                                try {
+                                    DB::getInstance()->query("ALTER TABLE `nl2_group_sync` ADD $column int(11) DEFAULT NULL");
+                                } catch (Exception $e) {
+                                    // Error
+                                }
+                            }
+
                             // Save to database
                             $application->update([
                                 'name' => Input::get('name'),
                                 'redirect_uri' => Input::get('redirect_uri'),
-                                'nameless' => (isset($_POST['nameless_integration']) && $_POST['nameless_integration'] == 'on') ? '1' : '0',
+                                'nameless' => $nameless_integration,
                                 'nameless_url' => !empty(Input::get('nameless_url')) ? rtrim(Input::get('nameless_url'), '/') : null,
                                 'nameless_client_id' => !empty(Input::get('nameless_client_id')) ? Input::get('nameless_client_id') : null,
                                 'nameless_api_key' => !empty(Input::get('nameless_api_key')) ? Input::get('nameless_api_key') : null,
+                                'skip_approval' => $skip_approval,
+                                'group_sync' => $sync_groups,
+                                'sync_integrations' => $sync_integrations
                             ]);
 
                             Session::flash('staff_applications', $oauth2_language->get('general', 'application_updated_successfully'));
@@ -167,6 +186,9 @@ if (!isset($_GET['action'])) {
                 'NAMELESS_URL_VALUE' => Output::getClean($application->data()->nameless_url),
                 'NAMELESS_CLIENT_ID_VALUE' => Output::getClean($application->data()->nameless_client_id),
                 'NAMELESS_API_KEY_VALUE' => Output::getClean($application->data()->nameless_api_key),
+                'SKIP_APPROVAL_VALUE' => Output::getClean($application->data()->skip_approval),
+                'SYNC_GROUPS_VALUE' => Output::getClean($application->data()->group_sync),
+                'SYNC_INTEGRATIONS_VALUE' => Output::getClean($application->data()->sync_integrations),
                 'CHANGE' => $language->get('general', 'change'),
                 'COPY' => $language->get('admin', 'copy'),
                 'COPIED' => $language->get('admin', 'copied'),
@@ -174,7 +196,9 @@ if (!isset($_GET['action'])) {
                 'CONFIRM_SECRET_REGEN' => $oauth2_language->get('general', 'confirm_secret_regen'),
                 'YES' => $language->get('general', 'yes'),
                 'NO' => $language->get('general', 'no'),
-                'REGEN_CLIENT_SECRET_LINK' => URL::build('/panel/applications/', 'action=regen&app=' . $application->data()->id)
+                'REGEN_CLIENT_SECRET_LINK' => URL::build('/panel/applications/', 'action=regen&app=' . $application->data()->id),
+                'OAUTH2_URL' => $oauth2_language->get('general', 'oauth2_url'),
+                'OAUTH2_URL_VALUE' => $application->getAuthURL([])
             ]);
         
             $template_file = 'oauth2/applications_edit.tpl';

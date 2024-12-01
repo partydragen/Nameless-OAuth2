@@ -12,14 +12,21 @@ define('PAGE', 'oauth2');
 $page_title = $oauth2_language->get('general', 'oauth2');
 require_once(ROOT_PATH . '/core/templates/frontend_init.php');
 
-// Must be logged in
-if(!$user->isLoggedIn()){
-	Redirect::to(URL::build('/login'));
-}
-
 if (!isset($_GET['client_id'])) {
     require_once(ROOT_PATH . '/403.php');
     die();
+}
+
+// Load modules + template
+Module::loadPage($user, $pages, $cache, $smarty, [$navigation, $cc_nav, $staffcp_nav], $widgets, $template);
+
+$template->onPageLoad();
+
+Session::put('application_client', $_GET['client_id']);
+
+// Must be logged in
+if (!$user->isLoggedIn()){
+    Redirect::to(URL::build('/login'));
 }
 
 // Get application by client id
@@ -39,6 +46,30 @@ if (!isset($_GET['redirect_uri']) || $application->getRedirectURI() != $_GET['re
     $errors[] = $oauth2_language->get('general', 'invalid_redirect_uri');
 }
 
+// Get requested scopes
+$requested_scopes = OAuth2::getScopesFromString($_GET['scope'] ?? '');
+if (!count($requested_scopes)) {
+    $errors[] = $oauth2_language->get('general', 'no_scopes_provided');
+}
+
+// Skip user approval if enabled
+if ($application->data()->skip_approval === 1) {
+    // Generate a code
+    $code = SecureRandom::alphanumeric();
+
+    DB::getInstance()->insert('oauth2_tokens', [
+        'application_id' => $application->data()->id,
+        'user_id' => $user->data()->id,
+        'code' => $code,
+        'access_token' => SecureRandom::alphanumeric(),
+        'refresh_token' => SecureRandom::alphanumeric(),
+        'created' => date('U'),
+        'scopes' => implode(' ', array_keys($requested_scopes))
+    ]);
+
+    Redirect::to($application->getRedirectURI() . (str_contains($application->getRedirectURI(), '?') ? '&' : '?') . 'code=' . $code);
+}
+
 if (!isset($errors)) {
     if (Input::exists()) {
         if (Token::check(Input::get('token'))) {
@@ -51,18 +82,21 @@ if (!isset($errors)) {
                 'code' => $code,
                 'access_token' => SecureRandom::alphanumeric(),
                 'refresh_token' => SecureRandom::alphanumeric(),
-                'created' => date('U')
+                'created' => date('U'),
+                'scopes' => implode(' ', array_keys($requested_scopes))
             ]);
 
-            Redirect::to($application->getRedirectURI() . "&code=$code");
+            Redirect::to($application->getRedirectURI() . (str_contains($application->getRedirectURI(), '?') ? '&' : '?') . 'code=' . $code);
         } else {
             // Invalid token
             $errors[] = $language->get('general', 'invalid_token');
         }
     }
-    
-    $access_to[] = $oauth2_language->get('general', 'your_username');
-    $access_to[] = $oauth2_language->get('general', 'your_email');
+
+    $access_to = [];
+    foreach ($requested_scopes as $scope) {
+        $access_to[] = $scope;
+    }
 
     $smarty->assign([
         'APPLICATION_NAME' => Output::getClean($application->getName()),
@@ -92,11 +126,6 @@ if (isset($errors) && count($errors))
 		'ERRORS' => $errors,
 		'ERRORS_TITLE' => $language->get('general', 'error')
 	]);
-
-// Load modules + template
-Module::loadPage($user, $pages, $cache, $smarty, [$navigation, $cc_nav, $staffcp_nav], $widgets, $template);
-
-$template->onPageLoad();
 
 require(ROOT_PATH . '/core/templates/navbar.php');
 require(ROOT_PATH . '/core/templates/footer.php');

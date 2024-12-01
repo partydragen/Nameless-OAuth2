@@ -23,7 +23,7 @@ class ApplicationGroupSyncInjector implements GroupSyncInjector {
     }
 
     public function getColumnName(): string {
-        return strtolower($this->_application->getName() . '_group_id');
+        return 'app_' . $this->_application->data()->id . '_group_id';
     }
 
     public function getColumnType(): string {

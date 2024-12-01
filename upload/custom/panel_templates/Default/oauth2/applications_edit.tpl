@@ -59,6 +59,13 @@
                                         <span class="input-group-append"><a onclick="copyClientSecret();" class="btn btn-info text-white">{$COPY}</a></span>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="InputOAuth2URL">{$OAUTH2_URL}</label>
+                                    <div class="input-group">
+                                        <input type="text" name="oauth_url" class="form-control" id="InputOAuth2URL" placeholder="{$OAUTH2_URL}" value="{$OAUTH2_URL_VALUE}" readonly>
+                                        <span class="input-group-append"><a onclick="copyAuthURL();" class="btn btn-info text-white">{$COPY}</a></span>
+                                    </div>
+                                </div>
 
                                 <hr />
 
@@ -69,6 +76,12 @@
                                 <div class="form-group">
                                     <label for="InputUrl">{$REDIRECT_URI}</label>
                                     <input type="text" name="redirect_uri" class="form-control" id="InputRedirectURI" placeholder="{$REDIRECT_URI}" value="{$REDIRECT_URI_VALUE}">
+                                </div>
+                                <div class="form-group custom-control custom-switch">
+                                    <input id="inputSkipApproval" name="skip_approval" type="checkbox" class="custom-control-input"{if $SKIP_APPROVAL_VALUE eq 1} checked{/if} />
+                                    <label class="custom-control-label" for="inputSkipApproval">
+                                        Ship OAuth2 approval?
+                                    </label>
                                 </div>
                         </div>
                     </div>
@@ -81,6 +94,18 @@
                                     <input id="inputNamelessIntegration" name="nameless_integration" type="checkbox" class="custom-control-input"{if $NAMELESS_INTEGRATION_VALUE eq 1} checked{/if} />
                                     <label class="custom-control-label" for="inputNamelessIntegration">
                                         Add integration & OAuth
+                                    </label>
+                                </div>
+                                <div class="form-group custom-control custom-switch">
+                                    <input id="inputSyncGroups" name="sync_groups" type="checkbox" class="custom-control-input"{if $SYNC_GROUPS_VALUE eq 1} checked{/if} />
+                                    <label class="custom-control-label" for="inputSyncGroups">
+                                        Sync groups?
+                                    </label>
+                                </div>
+                                <div class="form-group custom-control custom-switch">
+                                    <input id="inputSyncIntegrations" name="sync_integrations" type="checkbox" class="custom-control-input"{if $SYNC_INTEGRATIONS_VALUE eq 1} checked{/if} />
+                                    <label class="custom-control-label" for="inputSyncIntegrations">
+                                        Sync integrations?
                                     </label>
                                 </div>
                                 <div class="form-group">
@@ -174,6 +199,24 @@
 
         function copyClientSecret() {
             let url = document.getElementById("InputClientSecret");
+            url.select();
+            document.execCommand("copy");
+
+            // Toast
+            $('body').toast({
+                showIcon: 'fa-solid fa-check move-right',
+                message: '{$COPIED}',
+                class: 'success',
+                progressUp: true,
+                displayTime: 6000,
+                showProgress: 'bottom',
+                pauseOnHover: false,
+                position: 'bottom left',
+            });
+        }
+
+        function copyAuthURL() {
+            let url = document.getElementById("InputOAuth2URL");
             url.select();
             document.execCommand("copy");
 

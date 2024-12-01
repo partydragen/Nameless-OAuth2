@@ -8,27 +8,27 @@ class OAuth2UserEndpoint extends AccessTokenAuthEndpoint {
         $this->_method = 'GET';
     }
 
-    public function execute(Nameless2API $api): void {
-        $auth_header = HttpUtils::getHeader('Authorization');
-        $exploded = explode(' ', trim($auth_header));
-
-        // Get data from access token
-        $access_token = DB::getInstance()->get('oauth2_tokens', ['access_token', $exploded[1]]);
-        if (!$access_token->count()) {
-            $api->throwError(OAuth2ApiErrors::ERROR_NOT_AUTHORIZED);
+    public function execute(Nameless2API $api, AccessToken $token): void {
+        if (!$token->hasScope('identify')) {
+            $api->throwError(OAuth2ApiErrors::ERROR_MISSING_SCOPE, ['scope' => 'identify']);
         }
-        $access_token = $access_token->first();
 
         // Make sure user still exist
-        $user = new User($access_token->user_id);
+        $user = $token->user();
         if (!$user->exists()) {
             $api->throwError(Nameless2API::ERROR_CANNOT_FIND_USER);
         }
 
-        $api->returnArray([
+        $data = [
             'id' => $user->data()->id,
             'username' => $user->data()->username,
-            'email' => $user->data()->email
-        ]);
+            'avatar' => $user->getAvatar(128, true)
+        ];
+
+        if ($token->hasScope('email')) {
+            $data['email'] = $user->data()->email;
+        }
+
+        $api->returnArray($data);
     }
 }

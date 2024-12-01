@@ -2,7 +2,7 @@
 /*
  *  Made by Partydragen
  *  https://github.com/partydragen/Nameless-OAuth2
- *  NamelessMC version 2.0.2
+ *  NamelessMC version 2.2.0
  *
  *  License: MIT
  *
@@ -20,13 +20,14 @@ class OAuth2_Module extends Module {
 
         $name = 'OAuth2';
         $author = '<a href="https://partydragen.com/" target="_blank" rel="nofollow noopener">Partydragen</a>';
-        $module_version = '1.0.3';
-        $nameless_version = '2.1.1';
+        $module_version = '1.1.0';
+        $nameless_version = '2.1.2';
 
         parent::__construct($this, $name, $author, $module_version, $nameless_version);
 
         // Define URLs which belong to this module
         $pages->add('OAuth2', '/oauth2/authorize', 'pages/oauth2.php');
+        $pages->add('OAuth2', '/user/applications', 'pages/user/applications.php');
         $pages->add('OAuth2', '/panel/applications', 'pages/panel/applications.php');
 
         // Check if module version changed
@@ -36,7 +37,7 @@ class OAuth2_Module extends Module {
         } else {
             if ($module_version != $cache->retrieve('module_version')) {
                 // Version have changed, Perform actions
-                //$this->initialiseUpdate($cache->retrieve('module_version'));
+                $this->initialiseUpdate($cache->retrieve('module_version'));
 
                 $cache->store('module_version', $module_version);
 
@@ -68,6 +69,13 @@ class OAuth2_Module extends Module {
             }
         } catch (Exception $e) {
             // Database tables don't exist yet
+        }
+
+        OAuth2::registerScope('identify', 'Your username');
+        OAuth2::registerScope('email', 'Your email address');
+
+        if (Util::isModuleEnabled('Resources')) {
+            OAuth2::registerScope('resources.licenses', 'Read your resource licenses');
         }
 
         $endpoints->loadEndpoints(ROOT_PATH . '/modules/OAuth2/includes/endpoints');
@@ -154,13 +162,56 @@ class OAuth2_Module extends Module {
     }
 
     public function getDebugInfo(): array {
-        return [];
+        $applications_list = [];
+        $applications = $this->_db->query("SELECT * FROM nl2_oauth2_applications WHERE nameless = 1 AND enabled = 1")->results();
+        foreach ($applications as $app) {
+            $application = new Application(null, null, $app);
+
+            $applications_list[] = [
+                'id' => $application->data()->id,
+                'user_id' => $application->data()->user_id,
+                'client_id' => $application->data()->client_id,
+                'redirect_uri' => $application->data()->redirect_uri,
+                'nameless' => $application->data()->nameless,
+                'nameless_url' => $application->data()->nameless_url,
+                'nameless_client_id' => $application->data()->nameless_client_id,
+                'nameless_api_key' => $application->data()->nameless_api_key,
+                'group_sync' => $application->data()->group_sync,
+                'sync_integrations' => $application->data()->sync_integrations,
+                'skip_approval' => $application->data()->skip_approval,
+                'enabled' => $application->data()->enabled,
+            ];
+        }
+
+        return [
+            'applications' => $applications_list
+        ];
+    }
+
+    private function initialiseUpdate($old_version) {
+        $old_version = str_replace([".", "-"], "", $old_version);
+
+        if ($old_version < 110) {
+            try {
+                DB::getInstance()->query("ALTER TABLE `nl2_oauth2_applications` ADD `skip_approval` tinyint(1) NOT NULL DEFAULT '0'");
+                DB::getInstance()->query("ALTER TABLE `nl2_oauth2_applications` ADD `sync_integrations` tinyint(1) NOT NULL DEFAULT '0'");
+            } catch (Exception $e) {
+                // Error
+            }
+
+            try {
+                DB::getInstance()->query("ALTER TABLE `nl2_oauth2_tokens` ADD `last_used` int(11) DEFAULT NULL");
+                DB::getInstance()->query("ALTER TABLE `nl2_oauth2_tokens` ADD `scopes` varchar(1024) NOT NULL");
+            } catch (Exception $e) {
+                // Error
+            }
+        }
     }
 
     private function initialise() {
         if (!$this->_db->showTables('oauth2_applications')) {
             try {
-                $this->_db->createTable("oauth2_applications", " `id` int(11) NOT NULL AUTO_INCREMENT, `user_id` int(11) NOT NULL, `name` varchar(32) NOT NULL, `client_id` varchar(64) NOT NULL, `client_secret` varchar(64) NOT NULL, `redirect_uri` varchar(128) NOT NULL, `created` int(11) NOT NULL, `nameless` tinyint(1) NOT NULL DEFAULT '0', `nameless_url` varchar(128) NULL DEFAULT NULL, `nameless_client_id` varchar(64) NULL DEFAULT NULL, `nameless_api_key` varchar(64) NULL DEFAULT NULL, `group_sync` tinyint(1) NOT NULL DEFAULT '0', `enabled` tinyint(1) NOT NULL DEFAULT '1', PRIMARY KEY (`id`)");
+                $this->_db->createTable("oauth2_applications", " `id` int(11) NOT NULL AUTO_INCREMENT, `user_id` int(11) NOT NULL, `name` varchar(32) NOT NULL, `client_id` varchar(64) NOT NULL, `client_secret` varchar(64) NOT NULL, `redirect_uri` varchar(128) NOT NULL, `created` int(11) NOT NULL, `nameless` tinyint(1) NOT NULL DEFAULT '0', `nameless_url` varchar(128) NULL DEFAULT NULL, `nameless_client_id` varchar(64) NULL DEFAULT NULL, `nameless_api_key` varchar(64) NULL DEFAULT NULL, `group_sync` tinyint(1) NOT NULL DEFAULT '0', `sync_integrations` tinyint(1) NOT NULL DEFAULT '0', `skip_approval` tinyint(1) NOT NULL DEFAULT '0', `enabled` tinyint(1) NOT NULL DEFAULT '1', PRIMARY KEY (`id`)");
             } catch (Exception $e) {
                 // Error
                 die($e);
@@ -169,7 +220,7 @@ class OAuth2_Module extends Module {
 
         if (!$this->_db->showTables('oauth2_tokens')) {
             try {
-                $this->_db->createTable("oauth2_tokens", " `id` int(11) NOT NULL AUTO_INCREMENT, `application_id` int(11) NOT NULL, `user_id` int(11) NOT NULL, `code` varchar(64) NOT NULL, `access_token` varchar(64) NOT NULL, `refresh_token` varchar(64) NOT NULL, `created` int(11) NOT NULL, PRIMARY KEY (`id`)");
+                $this->_db->createTable("oauth2_tokens", " `id` int(11) NOT NULL AUTO_INCREMENT, `application_id` int(11) NOT NULL, `user_id` int(11) NOT NULL, `code` varchar(64) NOT NULL, `access_token` varchar(64) NOT NULL, `refresh_token` varchar(64) NOT NULL, `scopes` varchar(1024) NOT NULL, `created` int(11) NOT NULL, `last_used` int(11) DEFAULT NULL, PRIMARY KEY (`id`)");
             } catch (Exception $e) {
                 // Error
                 die($e);

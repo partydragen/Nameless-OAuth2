@@ -9,6 +9,8 @@
  */
 class AccessTokenAuthEndpoint extends EndpointBase {
 
+    private AccessToken $_token;
+
     /**
      * Determine if the passed Access Token (in Authorization header) is valid.
      *
@@ -23,32 +25,21 @@ class AccessTokenAuthEndpoint extends EndpointBase {
         }
 
         $exploded = explode(' ', trim($auth_header));
-
         if (count($exploded) !== 2 ||
             strcasecmp($exploded[0], 'Bearer') !== 0) {
             $api->throwError(Nameless2API::ERROR_MISSING_API_KEY, 'Authorization header not in expected format');
         }
 
-        $access_token = $exploded[1];
-
-        return $this->validateAccessToken($api, $access_token);
+        $this->_token = new AccessToken($exploded[1]);
+        return $this->_token->isAuthorised();
     }
 
-    /**
-     * Validate provided Access Token to make sure it matches.
-     *
-     * @param Nameless2API $api Instance of API to use for database connection.
-     * @param string $access_token Access token to check.
-     * @return bool Whether it matches or not.
-     */
-    private function validateAccessToken(Nameless2API $api, string $access_token): bool {
-        $token = DB::getInstance()->get('oauth2_tokens', ['access_token', $access_token]);
-        if (!$token->count()) {
-            return false;
-        }
-        $token = $token->first();
+    public function customParams(): array {
+        return [$this->_token];
+    }
 
-        return hash_equals($access_token, $token->access_token);
+    public function getAccessToken(): AccessToken {
+        return $this->_token;
     }
 
 }

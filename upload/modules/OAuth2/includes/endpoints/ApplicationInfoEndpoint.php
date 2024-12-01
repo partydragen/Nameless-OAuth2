@@ -13,7 +13,7 @@ class ApplicationInfoEndpoint extends KeyAuthEndpoint {
 
         $application = new Application($_GET['client_id'], 'client_id');
         if (!$application->exists()) {
-            $api->throwError('oauth2:cannot_find_application');
+            $api->throwError(OAuth2ApiErrors::ERROR_CANNOT_FIND_APPLICATION);
         }
 
         $api->returnArray([
