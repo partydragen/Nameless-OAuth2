@@ -32,14 +32,14 @@ if (!isset($_GET['action'])) {
         ];
     }
 
-    $template->getEngine()->addVariables([
+    $smarty->assign([
         'APPLICATIONS_LIST' => $applications_list,
         'NEW_APPLICATION' => $oauth2_language->get('general', 'new_application'),
         'NEW_APPLICATION_LINK' => URL::build('/panel/applications/', 'action=new'),
         'NO_APPLICATIONS' => $oauth2_language->get('general', 'no_applications'),
     ]);
 
-    $template_file = 'oauth2/applications';
+    $template_file = 'oauth2/applications.tpl';
 } else {
     switch($_GET['action']) {
         case 'new':
@@ -85,7 +85,7 @@ if (!isset($_GET['action'])) {
                 }
             }
         
-            $template->getEngine()->addVariables([
+            $smarty->assign([
                 'APPLICATION_TITLE' => $oauth2_language->get('general', 'creating_application'),
                 'BACK' => $language->get('general', 'back'),
                 'BACK_LINK' => URL::build('/panel/applications/'),
@@ -95,7 +95,7 @@ if (!isset($_GET['action'])) {
                 'REDIRECT_URI_VALUE' => Output::getClean(Input::get('redirect_uri'))
             ]);
         
-            $template_file = 'oauth2/applications_new';
+            $template_file = 'oauth2/applications_new.tpl';
         break;
         case 'edit':
             if (!isset($_GET['app']) || !is_numeric($_GET['app'])) {
@@ -172,7 +172,7 @@ if (!isset($_GET['action'])) {
                 }
             }
 
-            $template->getEngine()->addVariables([
+            $smarty->assign([
                 'APPLICATION_TITLE' => $oauth2_language->get('general', 'editing_application_x', ['application' => Output::getClean($application->data()->name)]),
                 'BACK' => $language->get('general', 'back'),
                 'BACK_LINK' => URL::build('/panel/applications/'),
@@ -201,7 +201,7 @@ if (!isset($_GET['action'])) {
                 'OAUTH2_URL_VALUE' => $application->getAuthURL([])
             ]);
         
-            $template_file = 'oauth2/applications_edit';
+            $template_file = 'oauth2/applications_edit.tpl';
         break;
         case 'regen':
             // Regenerate secret key
@@ -245,18 +245,18 @@ if (Session::exists('staff_applications'))
     $success = Session::flash('staff_applications');
 
 if (isset($success))
-    $template->getEngine()->addVariables([
+    $smarty->assign([
         'SUCCESS' => $success,
         'SUCCESS_TITLE' => $language->get('general', 'success')
     ]);
 
 if (isset($errors) && count($errors))
-    $template->getEngine()->addVariables([
+    $smarty->assign([
         'ERRORS' => $errors,
         'ERRORS_TITLE' => $language->get('general', 'error')
     ]);
 
-$template->getEngine()->addVariables([
+$smarty->assign([
     'PARENT_PAGE' => PARENT_PAGE,
     'PAGE' => PANEL_PAGE,
     'DASHBOARD' => $language->get('admin', 'dashboard'),
@@ -270,4 +270,4 @@ $template->onPageLoad();
 require(ROOT_PATH . '/core/templates/panel_navbar.php');
 
 // Display template
-$template->displayTemplate($template_file);
+$template->displayTemplate($template_file, $smarty);

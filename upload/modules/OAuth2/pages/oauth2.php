@@ -98,7 +98,7 @@ if (!isset($errors)) {
         $access_to[] = $scope;
     }
 
-    $template->getEngine()->addVariables([
+    $smarty->assign([
         'APPLICATION_NAME' => Output::getClean($application->getName()),
         'APPLICATION_WANTS_ACCESS' => $oauth2_language->get('general', 'application_wants_access', [
             'application' => $application->getName(),
@@ -116,13 +116,13 @@ if (!isset($errors)) {
 }
 
 if (isset($success))
-	$template->getEngine()->addVariables([
+	$smarty->assign([
 		'SUCCESS' => $success,
 		'SUCCESS_TITLE' => $language->get('general', 'success')
 	]);
 
 if (isset($errors) && count($errors))
-	$template->getEngine()->addVariables([
+	$smarty->assign([
 		'ERRORS' => $errors,
 		'ERRORS_TITLE' => $language->get('general', 'error')
 	]);
@@ -131,4 +131,4 @@ require(ROOT_PATH . '/core/templates/navbar.php');
 require(ROOT_PATH . '/core/templates/footer.php');
 
 // Display template
-$template->displayTemplate('oauth2/oauth2');
+$template->displayTemplate('oauth2/oauth2.tpl', $smarty);

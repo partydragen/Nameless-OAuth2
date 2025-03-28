@@ -35,22 +35,22 @@ if (!isset($_GET['action'])) {
             ];
         }
 
-        $template->getEngine()->addVariable('APPLICATIONS_LIST', $applications_list);
+        $smarty->assign('APPLICATIONS_LIST', $applications_list);
     }
 
     if (!isset($applications_list)) {
-        $template->getEngine()->addVariables([
+        $smarty->assign([
             'NEW_APPLICATION' => $oauth2_language->get('general', 'new_application'),
             'NEW_APPLICATION_LINK' => URL::build('/user/applications/', 'action=new')
         ]);
     }
 
-    $template->getEngine()->addVariables([
+    $smarty->assign([
         'NO_APPLICATIONS' => $oauth2_language->get('general', 'user_no_applications'),
         'APPLICATIONS_LIST' => $applications_list
     ]);
 
-    $template_file = 'oauth2/user/applications';
+    $template_file = 'oauth2/user/applications.tpl';
 } else {
     switch ($_GET['action']) {
         case 'new':
@@ -101,13 +101,13 @@ if (!isset($_GET['action'])) {
                 }
             }
 
-            $template->getEngine()->addVariables([
+            $smarty->assign([
                 'NEW_APPLICATION' => $oauth2_language->get('general', 'new_application'),
                 'APPLICATION_NAME' => $oauth2_language->get('general', 'application_name'),
                 'REDIRECT_URI' => $oauth2_language->get('general', 'redirect_uri'),
             ]);
 
-            $template_file = 'oauth2/user/applications_new';
+            $template_file = 'oauth2/user/applications_new.tpl';
             break;
 
         case 'view':
@@ -162,7 +162,7 @@ if (!isset($_GET['action'])) {
                 }
             }
 
-            $template->getEngine()->addVariables([
+            $smarty->assign([
                 'EDITING_APPLICATION' => $oauth2_language->get('general', 'editing_application_x', [
                     'application' => Output::getClean($application->data()->name),
                 ]),
@@ -178,7 +178,7 @@ if (!isset($_GET['action'])) {
                 'OAUTH2_URL_VALUE' => $application->getAuthURL([])
             ]);
 
-            $template_file = 'oauth2/user/applications_form';
+            $template_file = 'oauth2/user/applications_form.tpl';
             break;
 
         default:
@@ -187,7 +187,7 @@ if (!isset($_GET['action'])) {
     }
 }
 
-$template->getEngine()->addVariables([
+$smarty->assign([
     'APPLICATIONS' => $oauth2_language->get('general', 'applications'),
     'SUBMIT' => $language->get('general', 'submit'),
     'TOKEN' => Token::get(),
@@ -201,13 +201,13 @@ if (Session::exists('user_applications_success')) {
 }
 
 if (isset($success))
-    $template->getEngine()->addVariables([
+    $smarty->assign([
         'SUCCESS' => $success,
         'SUCCESS_TITLE' => $language->get('general', 'success')
     ]);
 
 if (isset($errors) && count($errors))
-    $template->getEngine()->addVariables([
+    $smarty->assign([
         'ERRORS' => $errors,
         'ERRORS_TITLE' => $language->get('general', 'error')
     ]);
@@ -220,4 +220,4 @@ require(ROOT_PATH . '/core/templates/navbar.php');
 require(ROOT_PATH . '/core/templates/footer.php');
 
 // Display template
-$template->displayTemplate($template_file);
+$template->displayTemplate($template_file, $smarty);
