@@ -72,7 +72,7 @@ if (!isset($_GET['action'])) {
                             $application = new Application(DB::getInstance()->lastId());
 
                             Session::flash('staff_applications', $oauth2_language->get('general', 'application_created_successfully'));
-                            Redirect::to(URL::build('/panel/applications/', 'app=' . $application->data()->id));
+                            Redirect::to(URL::build('/panel/applications/', 'action=edit&app=' . $application->data()->id));
                         } catch (Exception $e) {
                             $errors[] = $e->getMessage();
                         }

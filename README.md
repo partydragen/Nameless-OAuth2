@@ -2,7 +2,7 @@
 The OAuth2 module allow your site to be a OAuth provider with also allow for cross linking NamelessMC sites
 
 ## Requirements
-- NamelessMC version 2.1.x
+- NamelessMC version 2.2.x
 
 ## Installation
 - Upload the contents of the **upload** directory straight into your NamelessMC installation's directory
