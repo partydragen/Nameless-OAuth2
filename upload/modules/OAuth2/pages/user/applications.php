@@ -14,6 +14,10 @@ if(!$user->isLoggedIn()){
     Redirect::to(URL::build('/'));
 }
 
+if (!$user->hasPermission('usercp.oauth2.applications')) {
+    Redirect::to(URL::build('/user'));
+}
+
 // Always define page name for navbar
 const PAGE = 'cc_applications';
 $page_title = $language->get('user', 'user_cp');
@@ -31,7 +35,7 @@ if (!isset($_GET['action'])) {
             $applications_list[] = [
                 'id' => $application->data()->id,
                 'name' => Output::getClean($application->data()->name),
-                'edit_link' => URL::build('/user/applications/', 'action=view&app=' . $application->data()->id),
+                'edit_link' => URL::build('/user/applications/', 'action=view&app=' . $application->data()->client_id),
             ];
         }
 
@@ -55,6 +59,10 @@ if (!isset($_GET['action'])) {
     switch ($_GET['action']) {
         case 'new':
             // Create new application
+            if (!$user->hasPermission('usercp.oauth2.applications.new')) {
+                Redirect::to(URL::build('/user'));
+            }
+
             if (Input::exists()) {
                 $errors = [];
 
@@ -88,7 +96,7 @@ if (!isset($_GET['action'])) {
                             $application = new Application(DB::getInstance()->lastId());
 
                             Session::flash('user_applications_success', $oauth2_language->get('general', 'application_created_successfully'));
-                            Redirect::to(URL::build('/user/applications/', 'action=view&app=' . $application->data()->id));
+                            Redirect::to(URL::build('/user/applications/', 'action=view&app=' . $application->data()->client_id));
                         } catch (Exception $e) {
                             $errors[] = $e->getMessage();
                         }
@@ -112,12 +120,17 @@ if (!isset($_GET['action'])) {
 
         case 'view':
             // View application
-            if (!isset($_GET['app']) || !is_numeric($_GET['app'])) {
+            if (!isset($_GET['app'])) {
                 Redirect::to(URL::build('/user/applications'));
             }
 
-            $application = new Application($_GET['app']);
+            $application = new Application($_GET['app'], 'client_id');
             if (!$application->exists()) {
+                Redirect::to(URL::build('/user/applications'));
+            }
+
+            // Check application ownership
+            if ($application->data()->user_id != $user->data()->id) {
                 Redirect::to(URL::build('/user/applications'));
             }
 
@@ -125,38 +138,49 @@ if (!isset($_GET['action'])) {
                 $errors = [];
 
                 if (Token::check(Input::get('token'))) {
-                    // Validate input
-                    $validation = Validate::check($_POST, [
-                        'name' => [
-                            Validate::REQUIRED => true,
-                            Validate::MIN => 1,
-                            Validate::MAX => 32
-                        ],
-                        'redirect_uri' => [
-                            Validate::REQUIRED => true,
-                            Validate::MIN => 12,
-                            Validate::MAX => 128
-                        ]
-                    ]);
+                    if (Input::get('action') == 'general') {
+                        // Validate input
+                        $validation = Validate::check($_POST, [
+                            'name' => [
+                                Validate::REQUIRED => true,
+                                Validate::MIN => 1,
+                                Validate::MAX => 32
+                            ],
+                            'redirect_uri' => [
+                                Validate::REQUIRED => true,
+                                Validate::MIN => 12,
+                                Validate::MAX => 128
+                            ]
+                        ]);
 
-                    if ($validation->passed()) {
-                        // Create application
-                        try {
-                            // Save to database
-                            DB::getInstance()->update('oauth2_applications', $application->data()->id, [
-                                'name' => Input::get('name'),
-                                'redirect_uri' => Input::get('redirect_uri')
-                            ]);
+                        if ($validation->passed()) {
+                            // Create application
+                            try {
+                                // Save to database
+                                DB::getInstance()->update('oauth2_applications', $application->data()->id, [
+                                    'name' => Input::get('name'),
+                                    'redirect_uri' => Input::get('redirect_uri')
+                                ]);
 
-                            Session::flash('user_applications_success', $oauth2_language->get('general', 'application_updated_successfully'));
-                            Redirect::to(URL::build('/user/applications/', 'action=view&app=' . $application->data()->id));
-                        } catch (Exception $e) {
-                            $errors[] = $e->getMessage();
+                                Session::flash('user_applications_success', $oauth2_language->get('general', 'application_updated_successfully'));
+                                Redirect::to(URL::build('/user/applications/', 'action=view&app=' . $application->data()->client_id));
+                            } catch (Exception $e) {
+                                $errors[] = $e->getMessage();
+                            }
+                        } else {
+                            // Validation Errors
+                            $errors = $validation->errors();
                         }
-                    } else {
-                        // Validation Errors
-                        $errors = $validation->errors();
+                    } else if (Input::get('action') == 'regen') {
+                        // Regenerate secret key
+                        $application->update([
+                            'client_secret' => SecureRandom::alphanumeric(),
+                        ]);
+
+                        Session::flash('user_applications_success', $oauth2_language->get('general', 'client_secret_key_regenerated'));
                     }
+
+                    Redirect::to(URL::build('/user/applications/', 'action=view&app=' . $application->data()->client_id));
                 } else {
                     $errors[] = $language->get('general', 'invalid_token');
                 }
@@ -175,7 +199,12 @@ if (!isset($_GET['action'])) {
                 'REDIRECT_URI' => $oauth2_language->get('general', 'redirect_uri'),
                 'REDIRECT_URI_VALUE' => Output::getClean($application->data()->redirect_uri),
                 'OAUTH2_URL' => $oauth2_language->get('general', 'oauth2_url'),
-                'OAUTH2_URL_VALUE' => $application->getAuthURL([])
+                'OAUTH2_URL_VALUE' => $application->getAuthURL([]),
+                'REGEN' => $oauth2_language->get('general', 'regen'),
+                'ARE_YOU_SURE' => $language->get('general', 'are_you_sure'),
+                'CONFIRM_SECRET_REGEN' => $oauth2_language->get('general', 'confirm_secret_regen'),
+                'YES' => $language->get('general', 'yes'),
+                'NO' => $language->get('general', 'no'),
             ]);
 
             $template_file = 'oauth2/user/applications_form';

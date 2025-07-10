@@ -1,6 +1,7 @@
 {
     "general/oauth2": "OAuth2",
     "general/applications": "Applications",
+    "general/oauth2_applications": "OAuth2 Applications",
     "general/new_application": "New Application",
     "general/no_applications": "There are no applications yet.",
     "general/creating_application": "Creating Application",
@@ -25,5 +26,8 @@
     "general/new_version_x": "New module version: {{new_version}}",
     "general/user_no_applications": "You do not have any applications.",
     "general/application_name": "Application Name",
-    "general/no_scopes_provided": "No scopes were provided"
+    "general/no_scopes_provided": "No scopes were provided",
+    "general/view_own_applications": "View own applications",
+    "general/create_applications": "Create applications",
+    "general/regen": "Regen"
 }

@@ -100,10 +100,16 @@ class OAuth2_Module extends Module {
     }
 
     public function onPageLoad($user, $pages, $cache, $smarty, $navs, $widgets, $template) {
+        if ($user->hasPermission('usercp.oauth2.applications')) {
+            $navs[1]->add('cc_applications', $this->_oauth2_language->get('general', 'oauth2_applications'), URL::build('/user/applications'), 'top', null, 10);
+        }
+
         if (defined('BACK_END')) {
             // Define permissions which belong to this module
             PermissionHandler::registerPermissions('OAuth2', [
                 'oauth2.applications' => $this->_language->get('moderator', 'staff_cp') . ' &raquo; ' . $this->_oauth2_language->get('general', 'applications'),
+                'usercp.oauth2.applications' => $this->_language->get('admin', 'user') . ' &raquo; ' . $this->_oauth2_language->get('general', 'view_own_applications'),
+                'usercp.oauth2.applications.new' => $this->_language->get('admin', 'user') . ' &raquo; ' . $this->_oauth2_language->get('general', 'create_applications'),
             ]);
 
             if ($user->hasPermission('oauth2.applications')) {

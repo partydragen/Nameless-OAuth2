@@ -42,7 +42,10 @@
 
                     <div class="field">
                         <label for="inputClientSecret">{$CLIENT_SECRET}</label>
-                        <input type="text" name="client_secret" id="inputClientSecret" value="{$CLIENT_SECRET_VALUE}" readonly>
+                        <div class="ui action input">
+                            <input type="text" name="client_secret" id="inputClientSecret" value="{$CLIENT_SECRET_VALUE}" readonly>
+                            <a class="ui button" href="#" data-toggle="modal" data-target="#modal-regen">{$REGEN}</a>
+                        </div>
                     </div>
 
                     <div class="ui divider"></div>
@@ -59,6 +62,7 @@
 
                     <div class="field">
                         <input type="hidden" name="token" value="{$TOKEN}">
+                        <input type="hidden" name="action" value="general" />
                         <input type="submit" class="ui primary button" value="{$SUBMIT}">
                     </div>
 
@@ -72,6 +76,23 @@
 
             </div>
         </div>
+    </div>
+</div>
+
+<div class="ui small modal" id="modal-regen">
+    <div class="header">
+        {$ARE_YOU_SURE}
+    </div>
+    <div class="content">
+        {$CONFIRM_SECRET_REGEN}
+    </div>
+    <div class="actions">
+        <a class="ui positive button">{$NO}</a>
+        <form action="" method="post" style="display: inline;">
+            <input type="hidden" name="token" value="{$TOKEN}" />
+            <input type="hidden" name="action" value="regen" />
+            <input type="submit" class="ui negative button" value="{$REGEN}" />
+        </form>
     </div>
 </div>
 
