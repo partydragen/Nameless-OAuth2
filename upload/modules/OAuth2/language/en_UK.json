@@ -17,8 +17,6 @@
     "general/application_wants_access": "An external application {{application}} wants to access your {{siteName}} account",
     "general/application_wants_information": "{{application}} wants to access the following information:",
     "general/authorize": "Authorize",
-    "general/your_username": "Your username",
-    "general/your_email": "Your email address",
     "general/invalid_redirect_uri": "Invalid OAuth2 redirect_uri",
     "general/new_update_available_x": "There is a new update available for the module {{module}}",
     "general/new_urgent_update_available_x": "There is a new urgent update available for the module {{module}}. Please update as soon as possible!",
@@ -32,5 +30,12 @@
     "general/regen": "Regen",
     "general/scopes": "Scopes",
     "general/oauth2_url_generator": "OAuth2 URL Generator",
-    "general/select_scopes_to_generate": "Select scopes to generate OAuth2 URL"
+    "general/select_scopes_to_generate": "Select scopes to generate OAuth2 URL",
+    "general/your_username": "Your username",
+    "general/your_email_address": "Your email address",
+    "general/read_your_groups": "Read your groups",
+    "general/read_your_connected_integrations": "Read your connected integrations",
+    "general/read_your_alerts": "Read your alerts",
+    "general/read_your_resource_licenses": "Read your resource licenses",
+    "general/read_your_store_balance": "Read your store balance"
 }

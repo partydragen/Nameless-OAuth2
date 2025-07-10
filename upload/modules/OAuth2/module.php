@@ -11,7 +11,7 @@
 
 class OAuth2_Module extends Module {
     private DB $_db;
-    private $_oauth2_language, $_language;
+    private Language $_oauth2_language, $_language;
 
     public function __construct(Language $language, Language $oauth2_language, Pages $pages, Cache $cache, Endpoints $endpoints){
         $this->_db = DB::getInstance();
@@ -71,18 +71,18 @@ class OAuth2_Module extends Module {
             // Database tables don't exist yet
         }
 
-        OAuth2::registerScope('identify', 'Your username');
-        OAuth2::registerScope('email', 'Your email address');
-        OAuth2::registerScope('user.groups', 'Read your groups');
-        OAuth2::registerScope('user.integrations', 'Read your connected integrations');
-        OAuth2::registerScope('user.alerts', 'Read your alerts');
+        OAuth2::registerScope('identify', $this->_oauth2_language->get('general', 'your_username'));
+        OAuth2::registerScope('email', $this->_oauth2_language->get('general', 'your_email_address'));
+        OAuth2::registerScope('user.groups', $this->_oauth2_language->get('general', 'read_your_groups'));
+        OAuth2::registerScope('user.integrations', $this->_oauth2_language->get('general', 'read_your_connected_integrations'));
+        OAuth2::registerScope('user.alerts', $this->_oauth2_language->get('general', 'read_your_alerts'));
 
         if (Util::isModuleEnabled('Resources')) {
-            OAuth2::registerScope('resources.licenses', 'Read your resource licenses');
+            OAuth2::registerScope('resources.licenses', $this->_oauth2_language->get('general', 'read_your_resource_licenses'));
         }
 
         if (Util::isModuleEnabled('Store')) {
-            OAuth2::registerScope('store.balance', 'Read your store balance');
+            OAuth2::registerScope('store.balance', $this->_oauth2_language->get('general', 'read_your_store_balance'));
         }
 
         $endpoints->loadEndpoints(ROOT_PATH . '/modules/OAuth2/includes/endpoints');

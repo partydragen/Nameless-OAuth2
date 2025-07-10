@@ -1,5 +1,5 @@
 # OAuth2 Module
-The OAuth2 module allow your site to be a OAuth provider with also allow for cross linking NamelessMC sites
+The Nameless OAuth2 module enables your NamelessMC site to act as an OAuth2 provider, allowing secure authorization for applications to access user data without sharing credentials. It supports cross-linking NamelessMC sites, using client ID, client secret, and redirect URI for seamless integration.
 
 ## Requirements
 - NamelessMC version 2.2.x
