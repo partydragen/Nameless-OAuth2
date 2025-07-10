@@ -81,6 +81,10 @@ class OAuth2_Module extends Module {
             OAuth2::registerScope('resources.licenses', 'Read your resource licenses');
         }
 
+        if (Util::isModuleEnabled('Store')) {
+            OAuth2::registerScope('store.balance', 'Read your store balance');
+        }
+
         $endpoints->loadEndpoints(ROOT_PATH . '/modules/OAuth2/includes/endpoints');
     }
 
