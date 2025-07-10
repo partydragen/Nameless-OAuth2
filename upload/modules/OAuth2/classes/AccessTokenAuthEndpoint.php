@@ -31,7 +31,7 @@ class AccessTokenAuthEndpoint extends EndpointBase {
         }
 
         $this->_token = new AccessToken($exploded[1]);
-        return $this->_token->isAuthorised();
+        return $this->_token->isAuthorised() && $this->_token->user()->exists();
     }
 
     public function customParams(): array {

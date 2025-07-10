@@ -13,12 +13,6 @@ class OAuth2ResourcesLicensesEndpoint extends AccessTokenAuthEndpoint {
             $api->throwError(OAuth2ApiErrors::ERROR_MISSING_SCOPE, ['scope' => 'resources.licenses']);
         }
 
-        // Make sure user still exist
-        $user = $token->user();
-        if (!$user->exists()) {
-            $api->throwError(Nameless2API::ERROR_CANNOT_FIND_USER);
-        }
-
         // Get user resource licenses
         $resources_list = [];
         $resources = DB::getInstance()->query('SELECT nl2_resources.id as id, nl2_resources.name as name FROM nl2_resources_payments LEFT JOIN nl2_resources ON nl2_resources.id = nl2_resources_payments.resource_id WHERE nl2_resources_payments.status = 1 AND nl2_resources_payments.user_id = ?', [$token->user()->data()->id]);
