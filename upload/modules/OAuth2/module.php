@@ -75,6 +75,7 @@ class OAuth2_Module extends Module {
         OAuth2::registerScope('email', 'Your email address');
         OAuth2::registerScope('user.groups', 'Read your groups');
         OAuth2::registerScope('user.integrations', 'Read your connected integrations');
+        OAuth2::registerScope('user.alerts', 'Read your alerts');
 
         if (Util::isModuleEnabled('Resources')) {
             OAuth2::registerScope('resources.licenses', 'Read your resource licenses');
