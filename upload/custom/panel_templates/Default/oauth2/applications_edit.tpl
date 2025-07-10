@@ -37,6 +37,14 @@
                             <h5 style="display:inline">{$APPLICATION_TITLE}</h5>
                             <div class="float-md-right">
                                 <a href="{$BACK_LINK}" class="btn btn-warning">{$BACK}</a>
+
+                                <button type="button" class="btn btn-primary dropdown-toggle"
+                                        data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">{$ACTIONS}</button>
+                                <div class="dropdown-menu">
+                                    {if isset($DELETE_APPLICATION)}<a class="dropdown-item" href="#"
+                                        onclick="showDeleteModal()">{$DELETE_APPLICATION}</a>{/if}
+                                </div>
                             </div>
                             <hr />
 
@@ -187,6 +195,33 @@
             </div>
         </div>
 
+        {if isset($DELETE_APPLICATION)}
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{$ARE_YOU_SURE}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            {$CONFIRM_DELETE_APPLICATION}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">{$NO}</button>
+                            <form action="{$DELETE_APPLICATION_LINK}" method="post">
+                                <input type="hidden" name="token" value="{$TOKEN}">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="{$APPLICATION_ID}">
+                                <input type="submit" class="btn btn-primary" value="{$YES}">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {/if}
+
         <!-- End Wrapper -->
     </div>
 
@@ -255,6 +290,12 @@
                 position: 'bottom left',
             });
         }
+
+        {if isset($DELETE_APPLICATION)}
+            function showDeleteModal() {
+                $('#deleteModal').modal().show();
+            }
+        {/if}
     </script>
 
     <script type="text/javascript">

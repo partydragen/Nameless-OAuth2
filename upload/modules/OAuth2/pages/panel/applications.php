@@ -178,6 +178,14 @@ if (!isset($_GET['action'])) {
             }
 
             $template->getEngine()->addVariables([
+                'ACTIONS' => $language->get('general', 'actions'),
+                'DELETE_APPLICATION' => $oauth2_language->get('general', 'delete_application'),
+                'DELETE_APPLICATION_LINK' => URL::build('/panel/applications/', 'action=delete&app=' . $application->data()->id),
+                'CONFIRM_DELETE_APPLICATION' => $oauth2_language->get('general', 'confirm_delete_application'),
+            ]);
+
+            $template->getEngine()->addVariables([
+                'APPLICATION_ID' => $application->data()->id,
                 'APPLICATION_TITLE' => $oauth2_language->get('general', 'editing_application_x', ['application' => Output::getClean($application->data()->name)]),
                 'BACK' => $language->get('general', 'back'),
                 'BACK_LINK' => URL::build('/panel/applications/'),
@@ -230,16 +238,18 @@ if (!isset($_GET['action'])) {
             Redirect::to(URL::build('/panel/applications/', 'action=edit&app=' . $application->data()->id));
         break;
         case 'delete':
-            // Delete Field
-            if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-                Redirect::to(URL::build('/panel/forms'));
+            // Delete Application
+            if (Input::exists()) {
+                if (Token::check()) {
+                    $application = new Application($_POST['id']);
+                    if ($application->exists()) {
+                        DB::getInstance()->delete('oauth2_applications', $application->data()->id);
+                        Session::flash('staff_applications', $oauth2_language->get('general', 'application_deleted_successfully'));
+                    }
+                }
             }
-            DB::getInstance()->update('forms_fields', $_GET['id'], [
-                'deleted' => 1
-            ]);
-                
-            Session::flash('staff_forms', $forms_language->get('forms', 'field_deleted_successfully'));
-            Redirect::to(URL::build('/panel/form/', 'form='.$form->data()->id));
+
+            Redirect::to(URL::build('/panel/applications'));
         break;
         default:
             Redirect::to(URL::build('/panel/applications'));
