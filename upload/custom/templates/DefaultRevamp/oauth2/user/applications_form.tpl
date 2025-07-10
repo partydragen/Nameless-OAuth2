@@ -65,16 +65,35 @@
                         <input type="hidden" name="action" value="general" />
                         <input type="submit" class="ui primary button" value="{$SUBMIT}">
                     </div>
+                </form>
+            </div>
 
-                    <div class="ui divider"></div>
-
+            <div class="ui segment">
+                <h3 class="ui header">{$OAUTH2_URL_GENERATOR}</h3>
+                <form class="ui form" action="" method="post" id="form-url-generator">
                     <div class="field">
                         <label for="inputOAuthURL">{$OAUTH2_URL}</label>
-                        <input type="text" name="oauth_url" id="inputOAuthURL" value="{$OAUTH2_URL_VALUE}" readonly>
+                        <input type="text" name="oauth_url" id="inputOAuthURL" placeholder="{$SELECT_SCOPES_TO_GENERATE}" readonly>
+                    </div>
+
+                    <div class="field">
+                        <label for="inputOAuthURL">{$SCOPES}</label>
+                        <div class="ui grid">
+                            {foreach from=$SCOPES_LIST key=scope item=item}
+                                <div class="four wide column">
+                                    <div class="field">
+                                        <div class="ui checkbox">
+                                            <input type="checkbox" name="scopes" value="{$scope}">
+                                            <label>{$scope}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/foreach}
+                        </div>
                     </div>
                 </form>
-
             </div>
+
         </div>
     </div>
 </div>
@@ -95,5 +114,40 @@
         </form>
     </div>
 </div>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        // Define the base OAuth2 URL from Smarty variable
+        const baseOAuthUrl = '{$OAUTH2_URL_VALUE}';
+
+        // Select all checkboxes with name="scopes"
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="scopes"]');
+
+        // Select the oauth_url input field
+        const oauthUrlField = document.querySelector('input[name="oauth_url"]');
+
+        // Function to update oauth_url based on selected checkboxes
+        function updateOAuthUrl() {
+            // Get values of checked checkboxes
+            const selectedScopes = Array.from(checkboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+
+            // Build the scope string (joined with '+' or empty if none selected)
+            const scopeString = selectedScopes.length > 0 ? selectedScopes.join('+') : '';
+
+            // Update oauth_url field
+            oauthUrlField.value = selectedScopes.length > 0 ? baseOAuthUrl + scopeString : '';
+        }
+
+        // Attach change event listener to each checkbox
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateOAuthUrl);
+        });
+
+        // Initialize oauth_url on page load
+        updateOAuthUrl();
+    });
+</script>
 
 {include file='footer.tpl'}

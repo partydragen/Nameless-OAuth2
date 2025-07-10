@@ -172,6 +172,11 @@ if (!isset($_GET['action'])) {
                 }
             }
 
+            $scopes_list = [];
+            foreach (OAuth2::getScopes() as $key => $value) {
+                $scopes_list[$key] = Output::getClean($value);
+            }
+
             $template->getEngine()->addVariables([
                 'APPLICATION_TITLE' => $oauth2_language->get('general', 'editing_application_x', ['application' => Output::getClean($application->data()->name)]),
                 'BACK' => $language->get('general', 'back'),
@@ -197,8 +202,12 @@ if (!isset($_GET['action'])) {
                 'YES' => $language->get('general', 'yes'),
                 'NO' => $language->get('general', 'no'),
                 'REGEN_CLIENT_SECRET_LINK' => URL::build('/panel/applications/', 'action=regen&app=' . $application->data()->id),
+                'OAUTH2_URL_GENERATOR' => $oauth2_language->get('general', 'oauth2_url_generator'),
                 'OAUTH2_URL' => $oauth2_language->get('general', 'oauth2_url'),
-                'OAUTH2_URL_VALUE' => $application->getAuthURL([])
+                'OAUTH2_URL_VALUE' => $application->getAuthURL([]),
+                'SELECT_SCOPES_TO_GENERATE' => $oauth2_language->get('general', 'select_scopes_to_generate'),
+                'SCOPES' => $oauth2_language->get('general', 'scopes'),
+                'SCOPES_LIST' => $scopes_list
             ]);
         
             $template_file = 'oauth2/applications_edit';

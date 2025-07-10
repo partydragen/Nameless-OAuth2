@@ -29,5 +29,8 @@
     "general/no_scopes_provided": "No scopes were provided",
     "general/view_own_applications": "View own applications",
     "general/create_applications": "Create applications",
-    "general/regen": "Regen"
+    "general/regen": "Regen",
+    "general/scopes": "Scopes",
+    "general/oauth2_url_generator": "OAuth2 URL Generator",
+    "general/select_scopes_to_generate": "Select scopes to generate OAuth2 URL"
 }

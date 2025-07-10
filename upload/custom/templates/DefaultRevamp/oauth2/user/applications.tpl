@@ -44,7 +44,7 @@
                     {if isset($APPLICATIONS_LIST)}
                         {foreach from=$APPLICATIONS_LIST item=app}
                             <div class="ui divider"></div>
-                            {$app.name}<div class="res right floated"><a class="ui mini primary button" href="{$app.edit_link}">View</a></div>
+                            <a href="{$app.edit_link}">{$app.name}</a> <div class="res right floated"><a class="ui mini primary button" href="{$app.edit_link}">{$VIEW}</a></div>
                         {/foreach}
                     {else}
                         <div class="ui info message">

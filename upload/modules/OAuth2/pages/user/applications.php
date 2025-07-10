@@ -51,7 +51,8 @@ if (!isset($_GET['action'])) {
 
     $template->getEngine()->addVariables([
         'NO_APPLICATIONS' => $oauth2_language->get('general', 'user_no_applications'),
-        'APPLICATIONS_LIST' => $applications_list
+        'APPLICATIONS_LIST' => $applications_list,
+        'VIEW' => $language->get('general', 'view')
     ]);
 
     $template_file = 'oauth2/user/applications';
@@ -178,12 +179,16 @@ if (!isset($_GET['action'])) {
                         ]);
 
                         Session::flash('user_applications_success', $oauth2_language->get('general', 'client_secret_key_regenerated'));
+                        Redirect::to(URL::build('/user/applications/', 'action=view&app=' . $application->data()->client_id));
                     }
-
-                    Redirect::to(URL::build('/user/applications/', 'action=view&app=' . $application->data()->client_id));
                 } else {
                     $errors[] = $language->get('general', 'invalid_token');
                 }
+            }
+
+            $scopes_list = [];
+            foreach (OAuth2::getScopes() as $key => $value) {
+                $scopes_list[$key] = Output::getClean($value);
             }
 
             $template->getEngine()->addVariables([
@@ -198,13 +203,17 @@ if (!isset($_GET['action'])) {
                 'APPLICATION_NAME_VALUE' => Output::getClean($application->data()->name),
                 'REDIRECT_URI' => $oauth2_language->get('general', 'redirect_uri'),
                 'REDIRECT_URI_VALUE' => Output::getClean($application->data()->redirect_uri),
+                'OAUTH2_URL_GENERATOR' => $oauth2_language->get('general', 'oauth2_url_generator'),
                 'OAUTH2_URL' => $oauth2_language->get('general', 'oauth2_url'),
                 'OAUTH2_URL_VALUE' => $application->getAuthURL([]),
+                'SELECT_SCOPES_TO_GENERATE' => $oauth2_language->get('general', 'select_scopes_to_generate'),
+                'SCOPES' => $oauth2_language->get('general', 'scopes'),
+                'SCOPES_LIST' => $scopes_list,
                 'REGEN' => $oauth2_language->get('general', 'regen'),
                 'ARE_YOU_SURE' => $language->get('general', 'are_you_sure'),
                 'CONFIRM_SECRET_REGEN' => $oauth2_language->get('general', 'confirm_secret_regen'),
                 'YES' => $language->get('general', 'yes'),
-                'NO' => $language->get('general', 'no'),
+                'NO' => $language->get('general', 'no')
             ]);
 
             $template_file = 'oauth2/user/applications_form';

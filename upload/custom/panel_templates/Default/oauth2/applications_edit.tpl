@@ -59,13 +59,6 @@
                                         <span class="input-group-append"><a onclick="copyClientSecret();" class="btn btn-info text-white">{$COPY}</a></span>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="InputOAuth2URL">{$OAUTH2_URL}</label>
-                                    <div class="input-group">
-                                        <input type="text" name="oauth_url" class="form-control" id="InputOAuth2URL" placeholder="{$OAUTH2_URL}" value="{$OAUTH2_URL_VALUE}" readonly>
-                                        <span class="input-group-append"><a onclick="copyAuthURL();" class="btn btn-info text-white">{$COPY}</a></span>
-                                    </div>
-                                </div>
 
                                 <hr />
 
@@ -124,6 +117,36 @@
                                 <div class="form-group">
                                     <input type="hidden" name="token" value="{$TOKEN}">
                                     <input type="submit" class="btn btn-primary" value="{$SUBMIT}">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5 style="display:inline">{$OAUTH2_URL_GENERATOR}</h5>
+                            <hr />
+                            <form role="form" action="" method="post">
+                                <div class="form-group">
+                                    <label for="InputOAuth2URL">{$OAUTH2_URL}</label>
+                                    <div class="input-group">
+                                        <input type="text" name="oauth_url" class="form-control" id="InputOAuth2URL" placeholder="{$SELECT_SCOPES_TO_GENERATE}" readonly>
+                                        <span class="input-group-append"><a onclick="copyAuthURL();" class="btn btn-info text-white">{$COPY}</a></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="InputOAuth2URL">{$SCOPES}</label>
+                                    <div class="row">
+                                        {foreach from=$SCOPES_LIST key=scope item=item}
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="scopes" value="{$scope}" id="defaultCheck{$scope}">
+                                                    <label class="form-check-label" for="defaultCheck{$scope}">{$scope}</label>
+                                                </div>
+                                            </div>
+                                        {/foreach}
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -232,6 +255,41 @@
                 position: 'bottom left',
             });
         }
+    </script>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Define the base OAuth2 URL from Smarty variable
+            const baseOAuthUrl = '{$OAUTH2_URL_VALUE}';
+
+            // Select all checkboxes with name="scopes"
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][name="scopes"]');
+
+            // Select the oauth_url input field
+            const oauthUrlField = document.querySelector('input[name="oauth_url"]');
+
+            // Function to update oauth_url based on selected checkboxes
+            function updateOAuthUrl() {
+                // Get values of checked checkboxes
+                const selectedScopes = Array.from(checkboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.value);
+
+                // Build the scope string (joined with '+' or empty if none selected)
+                const scopeString = selectedScopes.length > 0 ? selectedScopes.join('+') : '';
+
+                // Update oauth_url field
+                oauthUrlField.value = selectedScopes.length > 0 ? baseOAuthUrl + scopeString : '';
+            }
+
+            // Attach change event listener to each checkbox
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateOAuthUrl);
+            });
+
+            // Initialize oauth_url on page load
+            updateOAuthUrl();
+        });
     </script>
 
 </body>
