@@ -52,6 +52,8 @@ if (!count($requested_scopes)) {
     $errors[] = $oauth2_language->get('general', 'no_scopes_provided');
 }
 
+$state = $_GET['state'] ?? null;
+
 // Skip user approval if enabled
 if ($application->data()->skip_approval === 1) {
     // Generate a code
@@ -67,7 +69,13 @@ if ($application->data()->skip_approval === 1) {
         'scopes' => implode(' ', array_keys($requested_scopes))
     ]);
 
-    Redirect::to($application->getRedirectURI() . (str_contains($application->getRedirectURI(), '?') ? '&' : '?') . 'code=' . $code);
+    // Build redirect URI with code and state
+    $redirect = $application->getRedirectURI() . (str_contains($application->getRedirectURI(), '?') ? '&' : '?') . 'code=' . $code;
+    if ($state !== null) {
+        $redirect .= '&state=' . urlencode($state);
+    }
+
+    Redirect::to($redirect);
 }
 
 if (!isset($errors)) {
@@ -86,7 +94,13 @@ if (!isset($errors)) {
                 'scopes' => implode(' ', array_keys($requested_scopes))
             ]);
 
-            Redirect::to($application->getRedirectURI() . (str_contains($application->getRedirectURI(), '?') ? '&' : '?') . 'code=' . $code);
+            // Build redirect URI with code and state
+            $redirect = $application->getRedirectURI() . (str_contains($application->getRedirectURI(), '?') ? '&' : '?') . 'code=' . $code;
+            if ($state !== null) {
+                $redirect .= '&state=' . urlencode($state);
+            }
+
+            Redirect::to($redirect);
         } else {
             // Invalid token
             $errors[] = $language->get('general', 'invalid_token');
