@@ -61,6 +61,38 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                 ]);
                 break;
 
+            case 'refresh_token':
+                if (!isset($output['refresh_token'])) {
+                    $api->throwError('oauth2:invalid_request', 'Missing refresh_token');
+                }
+
+                // Get token by access token
+                $token = new AccessToken($output['refresh_token'], 'refresh_token');
+                if (!$token->exists()) {
+                    $api->throwError('oauth2:invalid_grant');
+                }
+
+                if ($token->data()->application_id != $application->data()->id) {
+                    $api->throwError('oauth2:invalid_grant');
+                }
+
+                // Generate new access token and refresh token
+                $new_access = SecureRandom::alphanumeric();
+                $new_refresh = SecureRandom::alphanumeric();
+                DB::getInstance()->update('oauth2_tokens', $token->data()->id, [
+                    'access_token' => $new_access,
+                    'refresh_token' => $new_refresh,
+                    'created' => date('U'),
+                ]);
+
+                $api->returnArray([
+                    'access_token' => $new_access,
+                    'refresh_token' => $new_refresh,
+                    'token_type' => 'Bearer',
+                    #'expires_in' => 3600, TODO: Support expiration
+                    'scope' => $token->data()->scopes ?? ''
+                ]);
+                break;
 
             default:
                 $api->throwError('oauth2:unsupported_grant_type');
