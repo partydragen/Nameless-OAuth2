@@ -21,10 +21,21 @@ class AccessToken {
             if (hash_equals($value, $this->_data->access_token)) {
                 $this->_authorised = true;
 
-                DB::getInstance()->update('oauth2_tokens', $this->_data->id, [
+                $this->update([
                     'last_used' => date('U')
                 ]);
             }
+        }
+    }
+
+    /**
+     * Update token data in the database.
+     *
+     * @param array $fields Column names and values to update.
+     */
+    public function update(array $fields = []) {
+        if (!$this->_db->update('oauth2_tokens', $this->data()->id, $fields)) {
+            throw new Exception('There was a problem updating the token!');
         }
     }
 

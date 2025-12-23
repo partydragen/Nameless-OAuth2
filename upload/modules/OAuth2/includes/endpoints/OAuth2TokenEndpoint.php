@@ -52,6 +52,10 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                     $api->throwError('oauth2:invalid_grant');
                 }
 
+                $token->update([
+                    'code' => null
+                ]);
+
                 $api->returnArray([
                     'access_token' => $token->data()->access_token,
                     'refresh_token' => $token->data()->refresh_token,
@@ -79,10 +83,10 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                 // Generate new access token and refresh token
                 $new_access = SecureRandom::alphanumeric();
                 $new_refresh = SecureRandom::alphanumeric();
-                DB::getInstance()->update('oauth2_tokens', $token->data()->id, [
+                $token->update([
                     'access_token' => $new_access,
                     'refresh_token' => $new_refresh,
-                    'created' => date('U'),
+                    'expires' => date('U'),
                 ]);
 
                 $api->returnArray([
