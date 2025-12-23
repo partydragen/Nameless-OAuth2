@@ -13,6 +13,18 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
 
         parse_str($bodyReceived, $output);
 
+        if (!isset($output['client_id'])) {
+            $api->throwError('oauth2:invalid_request', 'Missing client_id');
+        }
+
+        if (!isset($output['client_secret'])) {
+            $api->throwError('oauth2:invalid_request', 'Missing client secret');
+        }
+
+        if (!isset($output['grant_type'])) {
+            $api->throwError('oauth2:invalid_request', 'Missing grant_type');
+        }
+
         // Get application by client id
         $application = new Application($output['client_id'], 'client_id');
         if (!$application->exists()) {
@@ -24,15 +36,34 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
             $api->throwError('oauth2:invalid_credentials');
         }
 
-        // Get token by code
-        $token = new AccessToken($output['code'], 'code');
-        if (!$token->exists()) {
-            $api->throwError('oauth2:invalid_code');
-        }
+        switch ($output['grant_type']) {
+            case 'authorization_code':
+                if (!isset($output['code'])) {
+                    $api->throwError('oauth2:invalid_request', 'Missing code');
+                }
 
-        $api->returnArray([
-            'access_token' => $token->data()->access_token,
-            'refresh_token' => $token->data()->refresh_token
-        ]);
+                // Get token by code
+                $token = new AccessToken($output['code'], 'code');
+                if (!$token->exists()) {
+                    $api->throwError('oauth2:invalid_code');
+                }
+
+                if ($token->data()->application_id != $application->data()->id) {
+                    $api->throwError('oauth2:invalid_grant');
+                }
+
+                $api->returnArray([
+                    'access_token' => $token->data()->access_token,
+                    'refresh_token' => $token->data()->refresh_token,
+                    'token_type' => 'Bearer',
+                    #'expires_in' => 3600, TODO: Support expiration
+                    'scope' => $token->data()->scopes ?? ''
+                ]);
+                break;
+
+
+            default:
+                $api->throwError('oauth2:unsupported_grant_type');
+        }
     }
 }
