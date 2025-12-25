@@ -71,9 +71,10 @@ if ($application->data()->skip_approval === 1) {
         'access_token' => SecureRandom::alphanumeric(),
         'refresh_token' => SecureRandom::alphanumeric(),
         'created' => date('U'),
+        'expires' => strtotime('+3600 seconds'),
         'scopes' => implode(' ', array_keys($requested_scopes)),
         'code_challenge' => $code_challenge,
-        'code_challenge_method' => $code_challenge_method ?: 'plain'
+        'code_challenge_method' => $code_challenge_method ?: 'plain',
     ]);
 
     // Build redirect URI with code and state
@@ -98,6 +99,7 @@ if (!isset($errors)) {
                 'access_token' => SecureRandom::alphanumeric(),
                 'refresh_token' => SecureRandom::alphanumeric(),
                 'created' => date('U'),
+                'expires' => strtotime('+3600 seconds'),
                 'scopes' => implode(' ', array_keys($requested_scopes)),
                 'code_challenge' => $code_challenge,
                 'code_challenge_method' => $code_challenge_method ?: 'plain'

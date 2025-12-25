@@ -50,6 +50,10 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                     $api->throwError('oauth2:invalid_code');
                 }
 
+                if ($token->data()->expires < time()) {
+                    $api->throwError('oauth2:invalid_grant', 'Code expired');
+                }
+
                 if ($token->data()->application_id != $application->data()->id) {
                     $api->throwError('oauth2:invalid_grant');
                 }
