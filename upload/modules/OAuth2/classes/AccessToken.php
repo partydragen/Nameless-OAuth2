@@ -18,12 +18,14 @@ class AccessToken {
         if ($token->count()) {
             $this->_data = $token->first();
 
-            if (hash_equals($value, $this->_data->access_token)) {
-                $this->_authorised = true;
+            if ($field === 'access_token') {
+                if (hash_equals($value, $this->_data->access_token) && $this->_data->expires >= time()) {
+                    $this->_authorised = true;
 
-                $this->update([
-                    'last_used' => date('U')
-                ]);
+                    $this->update([
+                        'last_used' => date('U')
+                    ]);
+                }
             }
         }
     }
