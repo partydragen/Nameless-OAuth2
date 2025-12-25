@@ -10,34 +10,36 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
 
     public function execute(Nameless2API $api): void {
         $bodyReceived = file_get_contents('php://input');
-
         parse_str($bodyReceived, $output);
-
-        if (!isset($output['client_id'])) {
-            $api->throwError('oauth2:invalid_request', 'Missing client_id');
-        }
-
-        if (!isset($output['client_secret'])) {
-            $api->throwError('oauth2:invalid_request', 'Missing client_secret');
-        }
 
         if (!isset($output['grant_type'])) {
             $api->throwError('oauth2:invalid_request', 'Missing grant_type');
         }
 
-        // Get application by client id
-        $application = new Application($output['client_id'], 'client_id');
-        if (!$application->exists()) {
-            $api->throwError('oauth2:invalid_credentials');
-        }
+        $client_authenticated = false;
+        if (isset($output['client_id'])) {
+            // Get application by client id
+            $application = new Application($output['client_id'], 'client_id');
+            if (!$application->exists()) {
+                $api->throwError('oauth2:invalid_client');
+            }
 
-        // Validate client secret
-        if (!hash_equals($output['client_secret'], $application->data()->client_secret)) {
-            $api->throwError('oauth2:invalid_credentials');
+            // If secret is provided, validate it
+            if (isset($output['client_secret'])) {
+                if (!hash_equals($output['client_secret'], $application->data()->client_secret)) {
+                    $api->throwError('oauth2:invalid_client');
+                }
+
+                $client_authenticated = true;
+            }
         }
 
         switch ($output['grant_type']) {
             case 'authorization_code':
+                if (!$client_authenticated) {
+                    $api->throwError('oauth2:invalid_request', 'Client authentication required');
+                }
+
                 if (!isset($output['code'])) {
                     $api->throwError('oauth2:invalid_request', 'Missing code');
                 }
@@ -52,10 +54,10 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                     $api->throwError('oauth2:invalid_grant');
                 }
 
+                // PKCE verification
                 $stored_challenge = $token->data()->code_challenge;
                 $stored_method = $token->data()->code_challenge_method ?? 'plain';
                 if ($stored_challenge) {
-                    // PKCE was used → require code_verifier
                     if (!isset($output['code_verifier'])) {
                         $api->throwError('oauth2:invalid_request', 'Missing code_verifier');
                     }
@@ -75,6 +77,7 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                     }
                 }
 
+                // Revoke code and set expiration
                 $token->update([
                     'code' => null,
                     'expires' => strtotime('+3600 seconds'),
@@ -94,13 +97,15 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                     $api->throwError('oauth2:invalid_request', 'Missing refresh_token');
                 }
 
-                // Get token by access token
+                // Get token by refresh_token
                 $token = new AccessToken($output['refresh_token'], 'refresh_token');
                 if (!$token->exists()) {
                     $api->throwError('oauth2:invalid_grant');
                 }
 
-                if ($token->data()->application_id != $application->data()->id) {
+                // If client_id was sent, it must match the token's application
+                $application = new Application($token->data()->application_id);
+                if (isset($output['client_id']) && $output['client_id'] !== $application->data()->client_id) {
                     $api->throwError('oauth2:invalid_grant');
                 }
 
