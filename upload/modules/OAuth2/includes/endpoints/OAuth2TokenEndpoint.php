@@ -18,7 +18,7 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
         }
 
         if (!isset($output['client_secret'])) {
-            $api->throwError('oauth2:invalid_request', 'Missing client secret');
+            $api->throwError('oauth2:invalid_request', 'Missing client_secret');
         }
 
         if (!isset($output['grant_type'])) {
@@ -52,15 +52,39 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                     $api->throwError('oauth2:invalid_grant');
                 }
 
+                $stored_challenge = $token->data()->code_challenge;
+                $stored_method = $token->data()->code_challenge_method ?? 'plain';
+                if ($stored_challenge) {
+                    // PKCE was used → require code_verifier
+                    if (!isset($output['code_verifier'])) {
+                        $api->throwError('oauth2:invalid_request', 'Missing code_verifier');
+                    }
+
+                    $verifier = $output['code_verifier'];
+
+                    // Compute expected challenge
+                    if ($stored_method === 'S256') {
+                        $computed_challenge = base64_url_encode(hash('sha256', $verifier, true));
+                    } else {
+                        // 'plain' method
+                        $computed_challenge = $verifier;
+                    }
+
+                    if (!hash_equals($computed_challenge, $stored_challenge)) {
+                        $api->throwError('oauth2:invalid_grant', 'Invalid code_verifier');
+                    }
+                }
+
                 $token->update([
-                    'code' => null
+                    'code' => null,
+                    'expires' => strtotime('+3600 seconds'),
                 ]);
 
                 $api->returnArray([
                     'access_token' => $token->data()->access_token,
                     'refresh_token' => $token->data()->refresh_token,
                     'token_type' => 'Bearer',
-                    #'expires_in' => 3600, TODO: Support expiration
+                    'expires_in' => 3600,
                     'scope' => $token->data()->scopes ?? ''
                 ]);
                 break;
@@ -86,14 +110,14 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                 $token->update([
                     'access_token' => $new_access,
                     'refresh_token' => $new_refresh,
-                    'expires' => date('U'),
+                    'expires' => strtotime('+3600 seconds'),
                 ]);
 
                 $api->returnArray([
                     'access_token' => $new_access,
                     'refresh_token' => $new_refresh,
                     'token_type' => 'Bearer',
-                    #'expires_in' => 3600, TODO: Support expiration
+                    'expires_in' => 3600,
                     'scope' => $token->data()->scopes ?? ''
                 ]);
                 break;
@@ -102,4 +126,8 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                 $api->throwError('oauth2:unsupported_grant_type');
         }
     }
+}
+
+function base64_url_encode($data): string {
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }

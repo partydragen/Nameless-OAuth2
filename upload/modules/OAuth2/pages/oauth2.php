@@ -53,6 +53,11 @@ if (!count($requested_scopes)) {
 }
 
 $state = $_GET['state'] ?? null;
+$code_challenge = $_GET['code_challenge'] ?? null;
+$code_challenge_method = $_GET['code_challenge_method'] ?? 'plain';
+if (!in_array($code_challenge_method, ['plain', 'S256'])) {
+    $errors[] = $oauth2_language->get('general', 'invalid_code_challenge');
+}
 
 // Skip user approval if enabled
 if ($application->data()->skip_approval === 1) {
@@ -66,7 +71,9 @@ if ($application->data()->skip_approval === 1) {
         'access_token' => SecureRandom::alphanumeric(),
         'refresh_token' => SecureRandom::alphanumeric(),
         'created' => date('U'),
-        'scopes' => implode(' ', array_keys($requested_scopes))
+        'scopes' => implode(' ', array_keys($requested_scopes)),
+        'code_challenge' => $code_challenge,
+        'code_challenge_method' => $code_challenge_method ?: 'plain'
     ]);
 
     // Build redirect URI with code and state
@@ -91,7 +98,9 @@ if (!isset($errors)) {
                 'access_token' => SecureRandom::alphanumeric(),
                 'refresh_token' => SecureRandom::alphanumeric(),
                 'created' => date('U'),
-                'scopes' => implode(' ', array_keys($requested_scopes))
+                'scopes' => implode(' ', array_keys($requested_scopes)),
+                'code_challenge' => $code_challenge,
+                'code_challenge_method' => $code_challenge_method ?: 'plain'
             ]);
 
             // Build redirect URI with code and state

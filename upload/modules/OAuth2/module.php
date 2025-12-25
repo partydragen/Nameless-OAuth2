@@ -206,15 +206,26 @@ class OAuth2_Module extends Module {
 
         if ($old_version < 110) {
             try {
-                DB::getInstance()->query("ALTER TABLE `nl2_oauth2_applications` ADD `skip_approval` tinyint(1) NOT NULL DEFAULT '0'");
-                DB::getInstance()->query("ALTER TABLE `nl2_oauth2_applications` ADD `sync_integrations` tinyint(1) NOT NULL DEFAULT '0'");
+                $this->_db->query("ALTER TABLE `nl2_oauth2_applications` ADD `skip_approval` tinyint(1) NOT NULL DEFAULT '0'");
+                $this->_db->query("ALTER TABLE `nl2_oauth2_applications` ADD `sync_integrations` tinyint(1) NOT NULL DEFAULT '0'");
             } catch (Exception $e) {
                 // Error
             }
 
             try {
-                DB::getInstance()->query("ALTER TABLE `nl2_oauth2_tokens` ADD `last_used` int(11) DEFAULT NULL");
-                DB::getInstance()->query("ALTER TABLE `nl2_oauth2_tokens` ADD `scopes` varchar(1024) NOT NULL");
+                $this->_db->query("ALTER TABLE `nl2_oauth2_tokens` ADD `last_used` int(11) DEFAULT NULL");
+                $this->_db->query("ALTER TABLE `nl2_oauth2_tokens` ADD `scopes` varchar(1024) NOT NULL");
+            } catch (Exception $e) {
+                // Error
+            }
+        }
+
+        if ($old_version < 140) {
+            try {
+                $this->_db->query('ALTER TABLE `nl2_oauth2_tokens` CHANGE `code` `code` varchar(64) DEFAULT NULL');
+                $this->_db->query("ALTER TABLE `nl2_oauth2_tokens` ADD `expires` int(11) DEFAULT NULL");
+                $this->_db->query("ALTER TABLE `nl2_oauth2_tokens` ADD `code_challenge` varchar(255) NULL");
+                $this->_db->query("ALTER TABLE `nl2_oauth2_tokens` ADD `code_challenge_method` varchar(10) DEFAULT 'plain'");
             } catch (Exception $e) {
                 // Error
             }
@@ -233,7 +244,7 @@ class OAuth2_Module extends Module {
 
         if (!$this->_db->showTables('oauth2_tokens')) {
             try {
-                $this->_db->createTable("oauth2_tokens", " `id` int(11) NOT NULL AUTO_INCREMENT, `application_id` int(11) NOT NULL, `user_id` int(11) NOT NULL, `code` varchar(64) NOT NULL, `access_token` varchar(64) NOT NULL, `refresh_token` varchar(64) NOT NULL, `scopes` varchar(1024) NOT NULL, `created` int(11) NOT NULL, `last_used` int(11) DEFAULT NULL, PRIMARY KEY (`id`)");
+                $this->_db->createTable("oauth2_tokens", " `id` int(11) NOT NULL AUTO_INCREMENT, `application_id` int(11) NOT NULL, `user_id` int(11) NOT NULL, `code` varchar(64) DEFAULT NULL, `access_token` varchar(64) NOT NULL, `refresh_token` varchar(64) NOT NULL, `scopes` varchar(1024) NOT NULL, `created` int(11) NOT NULL, `last_used` int(11) DEFAULT NULL, `expires` int(11) DEFAULT NULL, `code_challenge` varchar(255) NULL, `code_challenge_method` varchar(10) DEFAULT 'plain', PRIMARY KEY (`id`)");
             } catch (Exception $e) {
                 // Error
                 die($e);
