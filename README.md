@@ -1,6 +1,10 @@
 # OAuth2 Module
 The Nameless OAuth2 module enables your NamelessMC site to act as an OAuth2 provider, allowing secure authorization for applications to access user data without sharing credentials. It supports cross-linking NamelessMC sites, using client ID, client secret, and redirect URI for seamless integration.
 
+## Features
+- Authorization code flow + PKCE
+
+
 ## Requirements
 - NamelessMC version 2.2.x
 
@@ -8,6 +12,24 @@ The Nameless OAuth2 module enables your NamelessMC site to act as an OAuth2 prov
 - Upload the contents of the **upload** directory straight into your NamelessMC installation's directory
 - Activate the module in the StaffCP -> Modules tab
 - You can now create OAuth2 Applications at StaffCP -> Applications
+
+## Example URL's
+- URL to authorize: `https://example.com/oauth2/authorize`
+- API URL to fetch access token from code `https://example.com/index.php?route=/api/v2/oauth2/token`
+- API URL to fetch user data from access token `https://example.com/index.php?route=/api/v2/oauth2/user`
+
+## Supported Scopes
+- identify
+- email
+- user.groups
+- user.integrations
+- user.alerts
+- resources.licenses
+- store.balance
+
+## Supported response types
+- code
+- code with PKCE
 
 ## How to cross link NamelessMC sites
 1. Create a new application on Site 1 with can be the name of site 2 (Same on the other website)
