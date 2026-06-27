@@ -62,17 +62,18 @@ if (!in_array($code_challenge_method, ['plain', 'S256'])) {
 // Skip user approval if enabled
 if ($application->data()->skip_approval === 1) {
     // Generate a code
+    $scopes = implode(' ', array_keys($requested_scopes));
     $code = SecureRandom::alphanumeric();
 
     DB::getInstance()->insert('oauth2_tokens', [
         'application_id' => $application->data()->id,
         'user_id' => $user->data()->id,
         'code' => $code,
-        'access_token' => SecureRandom::alphanumeric(),
-        'refresh_token' => SecureRandom::alphanumeric(),
+        'access_token' => $application->generateToken($user->data()->id, $scopes),
+        'refresh_token' => $application->generateToken($user->data()->id, $scopes),
         'created' => date('U'),
-        'expires' => strtotime('+3600 seconds'),
-        'scopes' => implode(' ', array_keys($requested_scopes)),
+        'expires' => strtotime('+' . Settings::get('token_expires', 3600, 'OAuth2') . ' seconds'),
+        'scopes' => $scopes,
         'code_challenge' => $code_challenge,
         'code_challenge_method' => $code_challenge_method ?: 'plain',
     ]);
@@ -90,17 +91,18 @@ if (!isset($errors)) {
     if (Input::exists()) {
         if (Token::check(Input::get('token'))) {
             // Generate a code
+            $scopes = implode(' ', array_keys($requested_scopes));
             $code = SecureRandom::alphanumeric();
 
             DB::getInstance()->insert('oauth2_tokens', [
                 'application_id' => $application->data()->id,
                 'user_id' => $user->data()->id,
                 'code' => $code,
-                'access_token' => SecureRandom::alphanumeric(),
-                'refresh_token' => SecureRandom::alphanumeric(),
+                'access_token' => $application->generateToken($user->data()->id, $scopes),
+                'refresh_token' => $application->generateToken($user->data()->id, $scopes),
                 'created' => date('U'),
-                'expires' => strtotime('+3600 seconds'),
-                'scopes' => implode(' ', array_keys($requested_scopes)),
+                'expires' => strtotime('+' . Settings::get('token_expires', 3600, 'OAuth2') . ' seconds'),
+                'scopes' => $scopes,
                 'code_challenge' => $code_challenge,
                 'code_challenge_method' => $code_challenge_method ?: 'plain'
             ]);

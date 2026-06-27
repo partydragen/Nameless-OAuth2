@@ -84,14 +84,14 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                 // Revoke code and set expiration
                 $token->update([
                     'code' => null,
-                    'expires' => strtotime('+3600 seconds'),
+                    'expires' => strtotime('+' . Settings::get('token_expires', 3600, 'OAuth2') . ' seconds'),
                 ]);
 
                 $api->returnArray([
                     'access_token' => $token->data()->access_token,
                     'refresh_token' => $token->data()->refresh_token,
                     'token_type' => 'Bearer',
-                    'expires_in' => 3600,
+                    'expires_in' => Settings::get('token_expires', 3600, 'OAuth2'),
                     'scope' => $token->data()->scopes ?? ''
                 ]);
                 break;
@@ -114,19 +114,19 @@ class OAuth2TokenEndpoint extends NoAuthEndpoint {
                 }
 
                 // Generate new access token and refresh token
-                $new_access = SecureRandom::alphanumeric();
-                $new_refresh = SecureRandom::alphanumeric();
+                $new_access = $application->generateToken($token->data()->user_id, $token->data()->scopes);
+                $new_refresh = $application->generateToken($token->data()->user_id, $token->data()->scopes);
                 $token->update([
                     'access_token' => $new_access,
                     'refresh_token' => $new_refresh,
-                    'expires' => strtotime('+3600 seconds'),
+                    'expires' => strtotime('+' . Settings::get('token_expires', 3600, 'OAuth2') . ' seconds'),
                 ]);
 
                 $api->returnArray([
                     'access_token' => $new_access,
                     'refresh_token' => $new_refresh,
                     'token_type' => 'Bearer',
-                    'expires_in' => 3600,
+                    'expires_in' => Settings::get('token_expires', 3600, 'OAuth2'),
                     'scope' => $token->data()->scopes ?? ''
                 ]);
                 break;

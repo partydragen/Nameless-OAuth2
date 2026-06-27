@@ -1,4 +1,7 @@
 <?php
+
+use Firebase\JWT\JWT;
+
 /**
  * The Application class for OAuth2.
  *
@@ -75,5 +78,33 @@ class Application {
         $scopes = implode('+', $scopes);
 
         return rtrim(URL::getSelfURL(), '/') . URL::build('/oauth2/authorize/', 'client_id=' . Output::getClean($this->data()->client_id) . '&response_type=code&redirect_uri=' . urlencode($this->data()->redirect_uri) . '&scope=' . $scopes);
+    }
+
+    public function generateToken(int $user_id, string $scopes, string $type = null): string {
+        if (!$type) {
+            $type = Settings::get('token_type', 'OPAQUE', 'OAuth2');
+        }
+
+        switch ($type) {
+            default:
+            case 'OPAQUE':
+                return SecureRandom::alphanumeric();
+
+            case 'JWT':
+                $payload = [
+                    'iss' => rtrim(URL::getSelfURL(), '/'),
+                    'sub' => (string)$user_id,
+                    'aud' => rtrim(URL::getSelfURL(), '/'),
+                    'iat' => time(),
+                    'nbf' => time(),
+                    'exp' => time() + Settings::get('token_expires', 3600, 'OAuth2'),
+                    'jti' => bin2hex(random_bytes(16)),
+                    'scopes' => $scopes,
+                    'client_id' => $this->data()->client_id,
+                    'application_id' => $this->data()->id,
+                ];
+
+                return JWT::encode($payload, Settings::get('token_secret', null, 'OAuth2'), Settings::get('token_alg', 'HS256', 'OAuth2'));
+        }
     }
 }

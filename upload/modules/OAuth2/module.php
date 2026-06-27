@@ -85,6 +85,18 @@ class OAuth2_Module extends Module {
             OAuth2::registerScope('store.balance', $this->_oauth2_language->get('general', 'read_your_store_balance'));
         }
 
+        if (Util::isModuleEnabled('PlayerServers')) {
+            OAuth2::registerScope('server.{id}.*', 'Full Server Access');
+            OAuth2::registerScope('server.{id}.info', 'Read server information');
+            OAuth2::registerScope('server.{id}.update', 'Update server settings');
+            OAuth2::registerScope('server.{id}.delete', 'Delete server');
+            OAuth2::registerScope('server.{id}.rename', 'Rename server');
+            OAuth2::registerScope('server.{id}.create', 'Create server backup');
+            OAuth2::registerScope('server.{id}.restore', 'Restore server backup');
+            OAuth2::registerScope('server.{id}.console', 'Read server console');
+            OAuth2::registerScope('server.{id}.command', 'Send console commands');
+        }
+
         $endpoints->loadEndpoints(ROOT_PATH . '/modules/OAuth2/includes/endpoints');
     }
 

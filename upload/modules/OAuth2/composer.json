@@ -1,0 +1,14 @@
+{
+    "name": "partydragen/nameless-oauth2",
+    "description": "OAuth2 module for NamelessMC",
+    "type": "project",
+    "license": "MIT",
+    "config": {
+        "platform": {
+            "php": "8.2"
+        }
+    },
+    "require": {
+        "firebase/php-jwt": "^7.1"
+    }
+}

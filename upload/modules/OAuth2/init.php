@@ -12,6 +12,7 @@
 // Initialise forms language
 $oauth2_language = new Language(ROOT_PATH . '/modules/OAuth2/language', LANGUAGE);
 
+require_once(ROOT_PATH . '/modules/OAuth2/vendor/autoload.php');
 require_once(ROOT_PATH . '/modules/OAuth2/autoload.php');
 
 require_once(ROOT_PATH . '/modules/OAuth2/module.php');
